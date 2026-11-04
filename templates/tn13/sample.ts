@@ -11,7 +11,7 @@ export const sample: Tn13Data = {
     headline2: 'rồi!',
     greeting:
       'Mình tốt nghiệp rồi! Ghé sảnh trường chung vui và chụp hình cùng mình nha.',
-    coverPhoto: '/sample/person.svg',
+    coverPhoto: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/sample/person.svg`,
     mainColor: '#b8cbea',
     accentColor: '#f3dfb5',
     guestNote: 'Hẹn bạn ở sảnh chính của trường, tụi mình chụp thật nhiều hình kỷ niệm nha!',

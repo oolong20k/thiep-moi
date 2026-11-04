@@ -3,20 +3,22 @@ import { useState } from 'react';
 import { saveCard } from '@/lib/mycards';
 import s from './site.module.css';
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 export function CreateButton({ template }: { template: string }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   async function create() {
     setBusy(true);
     setErr('');
-    const r = await fetch('/api/cards', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ template }) }).catch(() => null);
+    const r = await fetch(`${BASE}/api/cards`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ template }) }).catch(() => null);
     if (!r?.ok) {
       setErr(r?.status === 429 ? 'Bạn tạo hơi nhiều, thử lại sau nhé.' : 'Chưa tạo được thiệp, thử lại giúp mình nhé.');
       return setBusy(false);
     }
     const { id, slug, editToken } = await r.json();
     saveCard({ id, slug, token: editToken, createdAt: Date.now() });
-    location.href = `/edit/${id}#${editToken}`;
+    location.href = `${BASE}/edit/${id}#${editToken}`;
   }
   return (
     <>

@@ -5,6 +5,8 @@ import { dateParts, initialsOf, monthGrid, targetMs } from './date';
 import { buildBoardCaps, buildFrozenCaps, hashSeed } from './parts/Cap';
 import { SectionTag } from './parts/SectionTag';
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 const paras = (t: string) =>
   String(t || '')
     .split(/\n+/)
@@ -629,7 +631,7 @@ export function Rsvp({ data, slug, guest, num }: { data: Tn13Data; slug?: string
     if (!name.trim()) return;
     setState('busy');
     if (!slug) return setState('done');
-    const r = await fetch(`/api/t/${slug}/rsvp`, {
+    const r = await fetch(`${BASE}/api/t/${slug}/rsvp`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ guestName: name, status, note }),
@@ -716,7 +718,7 @@ export function Wishes({ slug, guest, num }: { slug?: string; guest?: string; nu
 
   useEffect(() => {
     if (!slug) return;
-    fetch(`/api/t/${slug}/wishes`)
+    fetch(`${BASE}/api/t/${slug}/wishes`)
       .then((r) => r.json())
       .then((j) => setList(j.wishes ?? []))
       .catch(() => {});
@@ -727,7 +729,7 @@ export function Wishes({ slug, guest, num }: { slug?: string; guest?: string; nu
     if (!name.trim() || !msg.trim()) return;
     setState('busy');
     if (slug) {
-      const r = await fetch(`/api/t/${slug}/wishes`, {
+      const r = await fetch(`${BASE}/api/t/${slug}/wishes`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name, message: msg }),

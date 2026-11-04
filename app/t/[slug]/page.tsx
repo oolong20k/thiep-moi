@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { graduate: g, ceremony: c } = data;
   const title = `Thiệp mời tốt nghiệp của ${g.nickname}`;
   const description = `${c.title} · ${dateParts(c.date).short} · ${c.time} · ${c.venueName}`;
-  const image = g.coverPhoto.startsWith('/uploads/') || g.coverPhoto.startsWith('https://') ? g.coverPhoto : undefined;
+  const base = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  const image = g.coverPhoto.startsWith('/uploads/') || (base && g.coverPhoto.startsWith(`${base}/uploads/`)) || g.coverPhoto.startsWith('https://') ? g.coverPhoto : undefined;
   return { title, description, openGraph: { title, description, type: 'website', images: image ? [image] : undefined } };
 }
 

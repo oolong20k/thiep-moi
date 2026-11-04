@@ -3,11 +3,21 @@ import { z } from 'zod';
 export const HERO_LAYOUTS = ['sticker', 'torn', 'polaroid'] as const;
 export const ALBUM_LAYOUTS = ['stack', 'grid', 'slider', 'scatter', 'tape'] as const;
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 // Chỉ nhận ảnh đã upload hoặc https: chặn javascript:/data: ở ranh giới tin cậy.
 const url = z
   .string()
   .max(500)
-  .refine((u) => u === '' || u.startsWith('/uploads/') || u.startsWith('/sample/') || /^https:\/\//.test(u), 'url không hợp lệ');
+  .refine(
+    (u) =>
+      u === '' ||
+      u.startsWith('/uploads/') ||
+      u.startsWith('/sample/') ||
+      (BASE && (u.startsWith(`${BASE}/uploads/`) || u.startsWith(`${BASE}/sample/`))) ||
+      /^https:\/\//.test(u),
+    'url không hợp lệ',
+  );
 const text = (n: number) => z.string().max(n);
 const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 

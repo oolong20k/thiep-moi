@@ -97,7 +97,7 @@ export function create(): Store {
     async putImage(cardId, name, data) {
       fs.mkdirSync(dir(cardId), { recursive: true });
       fs.writeFileSync(path.join(dir(cardId), name), data);
-      return `/uploads/${cardId}/${name}`;
+      return `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/uploads/${cardId}/${name}`;
     },
     async getImage(cardId, name) {
       try {

@@ -12,6 +12,7 @@ type Resp = {
   rsvps: { id: number; guestName: string; status: string; note: string }[];
   wishes: { id: number; name: string; message: string; hidden: number }[];
 };
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
 const STATUS_LABEL: Record<string, string> = { yes: 'Có mặt', no: 'Vắng mặt', maybe: 'Chưa chắc' };
 
 export default function Editor() {
@@ -37,7 +38,7 @@ export default function Editor() {
     const t = location.hash.slice(1) || tokenFor(id);
     if (!t) return setState('unauthorized');
     setToken(t);
-    fetch(`/api/cards/${id}`, { headers: { authorization: `Bearer ${t}` } })
+    fetch(`${BASE}/api/cards/${id}`, { headers: { authorization: `Bearer ${t}` } })
       .then(async (r) => {
         if (r.status === 401) return setState('unauthorized');
         if (!r.ok) return setState('error');
@@ -58,7 +59,7 @@ export default function Editor() {
     if (!d || !token) return true;
     dirtyData.current = null;
     setSave('saving');
-    const r = await fetch(`/api/cards/${id}`, { method: 'PUT', headers: { ...auth(), 'content-type': 'application/json' }, body: JSON.stringify(d) }).catch(() => null);
+    const r = await fetch(`${BASE}/api/cards/${id}`, { method: 'PUT', headers: { ...auth(), 'content-type': 'application/json' }, body: JSON.stringify(d) }).catch(() => null);
     if (!r?.ok) {
       dirtyData.current ??= d;
       setSave('error');
@@ -88,7 +89,7 @@ export default function Editor() {
   async function upload(file: File) {
     const fd = new FormData();
     fd.set('file', await shrink(file));
-    const r = await fetch(`/api/cards/${id}/upload`, { method: 'POST', headers: auth(), body: fd });
+    const r = await fetch(`${BASE}/api/cards/${id}/upload`, { method: 'POST', headers: auth(), body: fd });
     if (!r.ok) throw new Error(r.status === 413 ? 'Ảnh quá lớn (tối đa 10MB)' : 'Tải ảnh thất bại, kiểm tra lại file ảnh');
     return r.json();
   }
@@ -96,7 +97,7 @@ export default function Editor() {
   async function publish() {
     setPublishing(true);
     if (await flush()) {
-      const r = await fetch(`/api/cards/${id}/publish`, { method: 'POST', headers: auth() });
+      const r = await fetch(`${BASE}/api/cards/${id}/publish`, { method: 'POST', headers: auth() });
       if (r.ok) setMeta((m) => m && { ...m, published: true, dirty: false });
     }
     setPublishing(false);
@@ -104,7 +105,7 @@ export default function Editor() {
 
   const loadResp = useCallback(async () => {
     if (!token) return;
-    const r = await fetch(`/api/cards/${id}/rsvps`, { headers: auth() });
+    const r = await fetch(`${BASE}/api/cards/${id}/rsvps`, { headers: auth() });
     if (r.ok) setResp(await r.json());
   }, [id, token, auth]);
   useEffect(() => {
@@ -112,7 +113,7 @@ export default function Editor() {
   }, [state, meta?.published, loadResp]);
 
   async function toggleWish(wid: number, hidden: boolean) {
-    await fetch(`/api/cards/${id}/wishes/${wid}`, { method: 'PATCH', headers: { ...auth(), 'content-type': 'application/json' }, body: JSON.stringify({ hidden }) });
+    await fetch(`${BASE}/api/cards/${id}/wishes/${wid}`, { method: 'PATCH', headers: { ...auth(), 'content-type': 'application/json' }, body: JSON.stringify({ hidden }) });
     loadResp();
   }
 
@@ -126,7 +127,7 @@ export default function Editor() {
       </div>
     );
 
-  const origin = typeof location === 'undefined' ? '' : location.origin;
+  const origin = typeof location === 'undefined' ? '' : `${location.origin}${BASE}`;
   const publicUrl = `${origin}/t/${meta.slug}`;
   const editUrl = `${origin}/edit/${id}#${token}`;
 
