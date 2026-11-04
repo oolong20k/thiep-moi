@@ -1,0 +1,284 @@
+/* Hero: poster collage. Mọi kích thước tính theo cqw (rộng của chính hero) nên co giãn như một tấm poster. */
+.hero {
+  container-type: inline-size;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+}
+
+.stage {
+  position: relative;
+  aspect-ratio: 100 / 90;
+}
+.paperWrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 24cqw;
+  bottom: 0;
+  --fr: 1.8cqw;
+  z-index: 0;
+}
+.paper {
+  height: 100%;
+}
+
+.burst {
+  position: absolute;
+  left: -9cqw;
+  top: -5cqw;
+  width: 116cqw;
+  height: 52cqw;
+  rotate: -4deg;
+  z-index: 1;
+  filter: drop-shadow(0 1cqw 1.4cqw rgba(29, 47, 111, 0.18));
+}
+.burstSm {
+  position: absolute;
+  left: 76cqw;
+  top: -8cqw;
+  width: 36cqw;
+  height: 30cqw;
+  rotate: 16deg;
+  z-index: 1;
+}
+.burstCorner {
+  position: absolute;
+  right: -12cqw;
+  bottom: -9cqw;
+  width: 44cqw;
+  height: 34cqw;
+  rotate: -8deg;
+  z-index: 2;
+}
+
+.title {
+  position: absolute;
+  left: 4cqw;
+  top: 9cqw;
+  margin: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 0.92;
+}
+.t1,
+.t2 {
+  display: block;
+  white-space: nowrap;
+  transform-origin: left bottom;
+}
+.t1 {
+  color: var(--orange);
+  rotate: -5deg;
+}
+.t2 {
+  color: var(--cobalt);
+  rotate: -4deg;
+  margin: 1.5cqw 0 0 8cqw;
+}
+
+.script {
+  position: absolute;
+  left: 7cqw;
+  top: 74cqw;
+  margin: 0;
+  z-index: 5;
+  rotate: -62deg;
+  transform-origin: left bottom;
+  font-family: var(--ff-script);
+  font-weight: 700;
+  font-size: 7.2cqw;
+  white-space: nowrap;
+  color: var(--ink);
+  pointer-events: none;
+}
+.hero[data-layout='polaroid'] .script {
+  display: none;
+}
+
+/* Ảnh chính: neo vào đáy hero, tràn lên đè dải giấy */
+.photo {
+  position: absolute;
+  top: 20cqw;
+  right: -9cqw;
+  bottom: 0;
+  width: 98cqw;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* torn/polaroid đặt tự do trong poster nên khung ảnh phủ toàn hero */
+.hero[data-layout='torn'] .photo,
+.hero[data-layout='polaroid'] .photo {
+  top: 0;
+  right: 0;
+  width: 100cqw;
+}
+
+/* layout: sticker (người cắt nền, viền cam) */
+.stickerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right bottom;
+}
+
+/* layout: torn (ảnh chữ nhật, mép xé, băng keo) */
+.tornFrame {
+  position: absolute;
+  right: 7cqw;
+  top: 34cqw;
+  width: 52cqw;
+  aspect-ratio: 4 / 5;
+  rotate: 2.5deg;
+  filter: drop-shadow(0 1.4cqw 1.8cqw rgba(29, 47, 111, 0.35));
+}
+.tornFrame::before {
+  /* tờ giấy cam nằm lệch phía sau */
+  content: '';
+  position: absolute;
+  inset: -2cqw 2cqw 2cqw -2cqw;
+  background: var(--orange);
+  rotate: -4deg;
+  clip-path: polygon(0 3%, 6% 0, 14% 2%, 24% 0, 38% 3%, 52% 0, 66% 2%, 80% 0, 92% 3%, 100% 1%, 99% 20%, 100% 40%, 98% 62%, 100% 82%, 97% 100%, 84% 98%, 70% 100%, 54% 97%, 40% 100%, 26% 98%, 12% 100%, 2% 97%, 0 80%, 2% 58%, 0 36%, 2% 16%);
+}
+.tornClip {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+}
+.tornClip img {
+  position: absolute;
+  inset: 1.6cqw;
+  width: calc(100% - 3.2cqw);
+  height: calc(100% - 3.2cqw);
+  object-fit: cover;
+}
+
+/* layout: polaroid */
+.polaroid {
+  position: absolute;
+  right: 5cqw;
+  top: 31cqw;
+  width: 54cqw;
+  padding: 3.2cqw 3.2cqw 15cqw;
+  background: #fffdf7;
+  rotate: -3deg;
+  box-shadow: 0 2cqw 4cqw rgba(29, 47, 111, 0.35);
+}
+.polaroid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3.6cqw;
+  text-align: center;
+  font-family: var(--ff-script);
+  font-weight: 700;
+  font-size: 8cqw;
+  color: var(--ink);
+}
+
+.tape {
+  position: absolute;
+  z-index: 2;
+  width: 17cqw;
+  height: 5.4cqw;
+  background: rgba(251, 231, 124, 0.82);
+  box-shadow: 0 0.4cqw 0.8cqw rgba(0, 0, 0, 0.18);
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 92% 0, 96% 12%, 100% 0, 100% 92%, 96% 100%, 92% 90%, 88% 100%, 8% 100%, 4% 92%, 0 100%);
+}
+.tape1 {
+  top: -1cqw;
+  left: -5cqw;
+  rotate: -38deg;
+}
+.tape2 {
+  bottom: 1cqw;
+  right: -5cqw;
+  rotate: -38deg;
+}
+.tape3 {
+  top: -3cqw;
+  left: 50%;
+  translate: -50% 0;
+  rotate: 3deg;
+  width: 22cqw;
+}
+
+.heroStamp {
+  --sw: 25cqw;
+  --p: 1.4cqw;
+  position: absolute;
+  left: -2cqw;
+  top: 86cqw;
+  rotate: 9deg;
+  z-index: 4;
+}
+
+/* Dải xanh phía dưới: tên + lời chúc */
+.strip {
+  position: relative;
+  z-index: 4;
+  padding: 7cqw 6cqw 11cqw;
+  max-width: 50cqw;
+  min-height: 40cqw;
+}
+.name {
+  margin: 0 0 3.4cqw;
+  color: var(--butter);
+  --o: var(--navy);
+  line-height: 1.02;
+  font-family: var(--ff-display);
+  font-weight: 800;
+  rotate: -1deg;
+  overflow-wrap: anywhere;
+}
+.greeting {
+  margin: 0;
+  font-size: 3.6cqw;
+  line-height: 1.38;
+  text-wrap: pretty;
+  color: rgba(255, 255, 255, 0.95);
+}
+.meta {
+  margin: 3cqw 0 0;
+  font-size: 3cqw;
+  line-height: 1.3;
+  color: var(--butter);
+  opacity: 0.9;
+}
+
+/* Nút tung mũ lại */
+.retoss {
+  position: absolute;
+  top: 3cqw;
+  right: 3cqw;
+  z-index: 6;
+  width: 12cqw;
+  height: 12cqw;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--butter);
+  border: 0.6cqw solid var(--navy);
+  cursor: pointer;
+  transition: rotate 0.3s;
+}
+.retoss:hover,
+.retoss:focus-visible {
+  rotate: -12deg;
+}
+.retoss svg {
+  width: 70%;
+  height: auto;
+}

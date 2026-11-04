@@ -1,0 +1,684 @@
+/* Skin TN13 gốc (neo-brutalism). Mọi selector có tiền tố [data-skin='brutal'] nên luôn thắng tn13.module.css, bất kể thứ tự nạp CSS. */
+
+/* Token của skin nằm ở app/globals.css (CSS Modules không cho selector không có class cục bộ). */
+
+[data-skin='brutal'] .page {
+  box-shadow: none;
+  background: var(--paper);
+  border-inline: 2px solid var(--ink-b);
+}
+
+[data-skin='brutal'] .grainPaper,
+[data-skin='brutal'] .grainPaper2 {
+  background: var(--paper-2);
+}
+
+[data-skin='brutal'] .grainBlue {
+  background: var(--ct-main);
+}
+
+[data-skin='brutal'] .tagStamp {
+  --sw: 32px;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 2px solid var(--ink-b);
+  border-radius: 7px;
+  background: var(--ct-main);
+  box-shadow: 3px 3px 0 var(--ink-b);
+  -webkit-mask: none;
+  mask: none;
+}
+
+[data-skin='brutal'] .stampInner {
+  background: none;
+}
+
+[data-skin='brutal'] .stampInner b {
+  color: #fff;
+  font-size: 12px;
+}
+
+[data-skin='brutal'] .tagLabel {
+  color: var(--ct-main-text);
+  font-family: var(--ff-body);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+
+[data-skin='brutal'] .tagLine {
+  border-top: 2px solid rgba(23, 20, 31, 0.16);
+}
+
+[data-skin='brutal'] .h2 {
+  font-family: var(--ff-body);
+  font-weight: 900;
+  font-size: 27px;
+  letter-spacing: -0.02em;
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .eyebrow,
+[data-skin='brutal'] .cellLabel {
+  font-family: var(--ff-body);
+  font-weight: 800;
+  color: var(--ct-accent-text);
+}
+
+[data-skin='brutal'] .hint {
+  color: #5b5665;
+}
+
+[data-skin='brutal'] .paperCard {
+  rotate: 0deg;
+  border: 2px solid var(--ink-b);
+  border-radius: 18px;
+  box-shadow: 6px 6px 0 var(--ct-main);
+}
+
+[data-skin='brutal'] .fullName {
+  font-family: var(--ff-body);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--ct-main-text);
+}
+
+[data-skin='brutal'] .bigDay,
+[data-skin='brutal'] .bigTime {
+  color: var(--ct-main);
+}
+
+[data-skin='brutal'] .cellSub {
+  color: #5b5665;
+}
+
+[data-skin='brutal'] .venue {
+  font-family: var(--ff-body);
+  font-weight: 900;
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .boardWide {
+  border-top: 2px solid rgba(23, 20, 31, 0.16);
+}
+
+[data-skin='brutal'] .btn,
+[data-skin='brutal'] .btnButter {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  border: 2px solid var(--ink-b);
+  box-shadow: 5px 5px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .btn {
+  background: var(--ct-main);
+  color: #fff;
+}
+
+[data-skin='brutal'] .btnButter {
+  background: var(--ct-accent);
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .btn:active,
+[data-skin='brutal'] .btnButter:active {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .input {
+  border: 2px solid var(--ink-b);
+  background: #fff;
+}
+
+[data-skin='brutal'] .choice,
+[data-skin='brutal'] .choiceOn {
+  border: 2px solid var(--ink-b);
+  font-family: var(--ff-body);
+  font-weight: 900;
+}
+
+[data-skin='brutal'] .choice {
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .choiceOn {
+  background: var(--ct-main);
+  box-shadow: 3px 3px 0 var(--ct-accent), 3px 3px 0 1.5px var(--ink-b);
+}
+
+[data-skin='brutal'] .thanksBox {
+  rotate: 0deg;
+  background: var(--ct-accent);
+  border: 2px solid var(--ink-b);
+  box-shadow: 4px 4px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .wishList li {
+  rotate: 0deg;
+  background: var(--ct-accent-soft);
+  border: 2px solid var(--ink-b);
+  border-left-width: 2px;
+  box-shadow: 4px 4px 0 var(--ct-main);
+}
+
+[data-skin='brutal'] .wishList b {
+  font-family: var(--ff-body);
+  font-weight: 900;
+  color: var(--ct-main-text);
+}
+
+[data-skin='brutal'] .secFlush {
+  padding: 28px 20px 0;
+}
+
+[data-skin='brutal'] .quote,
+[data-skin='brutal'] .thanks {
+  background: var(--ink-b);
+  border: 2px solid var(--ink-b);
+  border-radius: 18px;
+  box-shadow: 6px 6px 0 var(--ct-accent);
+  padding: 34px 22px 38px;
+  margin-top: 0;
+}
+
+[data-skin='brutal'] .giftBlock {
+  border: 2px solid var(--ink-b);
+  border-radius: 18px;
+  box-shadow: 6px 6px 0 var(--ink-b);
+  padding: 34px 22px 38px;
+}
+
+[data-skin='brutal'] .quoteBurst,
+[data-skin='brutal'] .thanksBurst,
+[data-skin='brutal'] .calBurst,
+[data-skin='brutal'] .mapTape,
+[data-skin='brutal'] .opBurstA {
+  display: none;
+}
+
+[data-skin='brutal'] .quoteLabel {
+  background: var(--ct-accent);
+  color: var(--ink-b);
+  border: 2px solid var(--ink-b);
+  border-radius: 6px;
+  padding: 2px 10px;
+}
+
+[data-skin='brutal'] .quoteText {
+  font-family: var(--ff-body);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 21px;
+}
+
+[data-skin='brutal'] .quoteBy {
+  color: var(--ct-accent);
+  font-family: var(--ff-body);
+}
+
+[data-skin='brutal'] .thanks {
+  padding-top: 34px;
+  padding-bottom: 40px;
+}
+
+[data-skin='brutal'] .thanksTitle {
+  text-shadow: none;
+  color: #fff;
+  font-family: var(--ff-display);
+  font-size: 34px;
+  rotate: 0deg;
+}
+
+[data-skin='brutal'] .thanksKicker {
+  color: var(--ct-accent);
+  rotate: 0deg;
+  font-family: var(--ff-body);
+}
+
+[data-skin='brutal'] .signature {
+  font-family: var(--ff-body);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 26px;
+  text-decoration: underline;
+  text-decoration-color: var(--ct-accent);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 5px;
+}
+
+[data-skin='brutal'] .thanksSummary {
+  color: var(--ct-accent);
+}
+
+[data-skin='brutal'] .giftBlock .tagLabel,
+[data-skin='brutal'] .thanks .tagLabel {
+  color: var(--ct-accent);
+}
+
+[data-skin='brutal'] .bank {
+  background: #fff;
+  border: 2px solid var(--ink-b);
+}
+
+[data-skin='brutal'] .cdTile {
+  border: 2px solid var(--ink-b);
+  border-radius: 12px;
+  background: var(--ct-main);
+  box-shadow: 4px 4px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .cdTile b {
+  font-family: var(--ff-display);
+}
+
+[data-skin='brutal'] .cdTile span {
+  font-family: var(--ff-body);
+  font-weight: 800;
+}
+
+[data-skin='brutal'] .calendar {
+  background: #fff;
+  border: 2px solid var(--ink-b);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--ct-accent), 4px 4px 0 1.5px var(--ink-b);
+}
+
+[data-skin='brutal'] .calTitle {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  color: var(--ct-main-text);
+}
+
+[data-skin='brutal'] .calHead {
+  font-family: var(--ff-body);
+  color: #5b5665;
+}
+
+[data-skin='brutal'] .calOn em {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--ink-b);
+  border-radius: 50%;
+  background: var(--ct-accent);
+  color: var(--ink-b);
+  font-family: var(--ff-body);
+  font-weight: 900;
+}
+
+[data-skin='brutal'] .timeline time {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+[data-skin='brutal'] .timeline::before {
+  background: var(--ct-accent);
+  box-shadow: 0 0 0 2px var(--ink-b);
+}
+
+[data-skin='brutal'] .tlDot {
+  background: var(--ct-main);
+  border-color: var(--paper);
+  box-shadow: 0 0 0 2px var(--ink-b);
+}
+
+[data-skin='brutal'] .tlLast .tlDot {
+  background: var(--ct-accent);
+  border: 2px solid var(--ink-b);
+  box-shadow: none;
+}
+
+[data-skin='brutal'] .tlLast p {
+  color: var(--ct-main-text);
+}
+
+[data-skin='brutal'] .mapFrame {
+  rotate: 0deg;
+  padding: 0;
+  border: 2px solid var(--ink-b);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 6px 6px 0 var(--ct-accent), 6px 6px 0 1.5px var(--ink-b);
+}
+
+[data-skin='brutal'] .faq details {
+  background: #fff;
+  border: 2px solid var(--ink-b);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .faq summary {
+  font-family: var(--ff-body);
+  font-weight: 900;
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .faq summary::after {
+  border-color: var(--ct-main);
+}
+
+[data-skin='brutal'] .music {
+  border: 2px solid var(--ink-b);
+  border-radius: 14px;
+  background: var(--ink-b);
+  color: var(--ct-accent);
+  box-shadow: 3px 3px 0 var(--ct-accent);
+}
+
+[data-skin='brutal'] .copy {
+  border-color: var(--ink-b);
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .opening {
+  background: var(--paper);
+}
+
+[data-skin='brutal'] .pillButter {
+  background: var(--ct-accent);
+  border: 2px solid var(--ink-b);
+  rotate: 0deg;
+  font-family: var(--ff-body);
+  font-weight: 900;
+}
+
+[data-skin='brutal'] .pillNavy {
+  background: var(--ink-b);
+  color: #fff;
+  rotate: 0deg;
+  font-family: var(--ff-display);
+  font-weight: 400;
+}
+
+[data-skin='brutal'] .opKicker {
+  font-family: var(--ff-body);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5b5665;
+}
+
+[data-skin='brutal'] .opName {
+  text-shadow: none;
+  color: var(--ink-b);
+  font-family: var(--ff-body);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  rotate: 0deg;
+}
+
+[data-skin='brutal'] .opSchool {
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .chip {
+  background: #fff;
+  border: 2px solid var(--ink-b);
+  color: var(--ink-b);
+  font-weight: 800;
+}
+
+[data-skin='brutal'] .opBlockWrap {
+  filter: none;
+  rotate: -4deg;
+}
+
+[data-skin='brutal'] .opBlock {
+  border: 2px solid var(--ink-b);
+  border-radius: 22px;
+  box-shadow: 8px 8px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .opImg {
+  border: 2.5px solid var(--ink-b);
+  border-radius: 14px;
+  background: var(--ct-accent);
+  box-shadow: 7px 7px 0 var(--ct-accent), 7px 7px 0 1.5px var(--ink-b);
+}
+
+[data-skin='brutal'] .opTab {
+  background: var(--ct-accent);
+  color: var(--ink-b);
+  border: 2px solid var(--ink-b);
+  border-radius: 10px;
+  font-family: var(--ff-body);
+  font-weight: 900;
+  rotate: 0deg;
+}
+
+[data-skin='brutal'] .opBadge {
+  border-radius: 999px;
+  border: 2px solid var(--ink-b);
+  background: var(--ink-b);
+  color: #fff;
+}
+
+[data-skin='brutal'] .tossing .opBadge {
+  background: var(--ct-accent);
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .opRing {
+  border: 5px solid var(--ct-accent);
+  border-radius: 50%;
+}
+
+[data-skin='brutal'] .opRing polygon {
+  display: none;
+}
+
+[data-skin='brutal'] .opCaption {
+  color: #5b5665;
+}
+
+[data-skin='brutal'] .opHr {
+  border-top: 2px solid var(--ink-b);
+}
+
+[data-skin='brutal'] .opTitle {
+  font-family: var(--ff-body);
+  font-weight: 900;
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .opDate {
+  font-family: var(--ff-body);
+  font-weight: 900;
+  color: var(--ct-main-text);
+}
+
+[data-skin='brutal'] .seat {
+  background: var(--ct-accent-soft);
+  border: 2px solid var(--ink-b);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--ink-b);
+  rotate: 0deg;
+}
+
+[data-skin='brutal'] .seat span {
+  color: var(--ct-accent-text);
+  font-family: var(--ff-body);
+}
+
+[data-skin='brutal'] .seat b {
+  font-family: var(--ff-body);
+  font-weight: 900;
+  color: var(--ink-b);
+  background: linear-gradient(transparent 62%, var(--ct-accent) 62%);
+}
+
+[data-skin='brutal'] .tossBtn {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  background: var(--ct-main);
+  border: 2px solid var(--ink-b);
+  box-shadow: 5px 5px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .tossBtn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .opHint {
+  font-family: var(--ff-body);
+  color: #5b5665;
+}
+
+[data-skin='brutal'] .bHero {
+  position: relative;
+  padding: 22px 20px 30px;
+  text-align: center;
+}
+
+[data-skin='brutal'] .bPill {
+  display: inline-block;
+  padding: 5px 14px;
+  font-family: var(--ff-body);
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--ct-accent);
+  border: 2px solid var(--ink-b);
+  border-radius: 999px;
+}
+
+[data-skin='brutal'] .bFrame {
+  position: relative;
+  width: min(66%, 270px);
+  aspect-ratio: 4 / 5;
+  margin: 26px auto 22px;
+  border: 2.5px solid var(--ink-b);
+  border-radius: 16px;
+  background: var(--ct-accent);
+  box-shadow: 7px 7px 0 var(--ct-accent), 7px 7px 0 1.5px var(--ink-b);
+}
+
+[data-skin='brutal'] .bFrame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 13px;
+}
+
+[data-skin='brutal'] .bCap {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  width: 52px;
+  translate: -50% 0;
+  rotate: -6deg;
+}
+
+[data-skin='brutal'] .bCap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+[data-skin='brutal'] .bName {
+  margin: 0;
+  font-family: var(--ff-body);
+  font-weight: 900;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-wrap: balance;
+  color: var(--ink-b);
+}
+
+[data-skin='brutal'] .bInfo {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 6px 18px;
+  justify-content: center;
+  margin: 16px 0;
+  text-align: left;
+}
+
+[data-skin='brutal'] .bInfo dt {
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5b5665;
+}
+
+[data-skin='brutal'] .bInfo dd {
+  margin: 0;
+  font-weight: 800;
+  font-size: 14px;
+  max-width: 130px;
+}
+
+[data-skin='brutal'] .bWhen {
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: var(--ct-accent-soft);
+  border: 2px solid var(--ink-b);
+  border-radius: 14px;
+}
+
+[data-skin='brutal'] .bWhen span {
+  display: block;
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ct-accent-text);
+}
+
+[data-skin='brutal'] .bWhen b {
+  font-family: var(--ff-display);
+  font-weight: 400;
+  color: var(--ct-main-text);
+}
+
+[data-skin='brutal'] .bNote {
+  margin: 0;
+  padding: 10px 14px;
+  text-align: left;
+  background: var(--ct-main-soft);
+  border-left: 4px solid var(--ct-main);
+  border-radius: 4px 12px 12px 4px;
+}
+
+[data-skin='brutal'] .bRetoss {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--ct-accent);
+  border: 2px solid var(--ink-b);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--ink-b);
+  cursor: pointer;
+}
+
+[data-skin='brutal'] .bRetoss:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink-b);
+}
+
+[data-skin='brutal'] .bRetoss svg {
+  width: 26px;
+  height: auto;
+}
+
+
+[data-skin='brutal'] .center {
+  margin-top: 18px;
+}

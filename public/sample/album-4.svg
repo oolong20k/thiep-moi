@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bcd0f7"/><stop offset="1" stop-color="#2459d6"/></linearGradient></defs>
+<rect width="600" height="750" fill="url(#g)"/>
+<circle cx="330" cy="170" r="88" fill="#fff" opacity=".35"/>
+<path d="M0 600 Q150 525 300 580 T600 540 V750 H0Z" fill="#000" opacity=".18"/>
+<path d="M300 330 l110 50 -110 45 -110 -45z" fill="#1d2f6f"/><path d="M240 410 v50 q60 30 120 0 v-50 l-60 25z" fill="#1d2f6f"/>
+<text x="300" y="690" text-anchor="middle" font-family="sans-serif" font-size="34" font-weight="700" fill="#fff">Ảnh mẫu 4</text></svg>

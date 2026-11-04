@@ -1,0 +1,211 @@
+/* Album: 4 layout hiển thị cùng một danh sách ảnh. Chọn bằng class `.grid|.scatter|.slider|.tape` trên `.album`. */
+.album {
+  --shadow: drop-shadow(0 6px 8px rgba(29, 47, 111, 0.28));
+}
+.item {
+  margin: 0;
+  position: relative;
+  filter: var(--shadow);
+}
+.item button {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #fff;
+}
+
+.tapePiece {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 70px;
+  height: 22px;
+  translate: -50% 0;
+  rotate: -4deg;
+  z-index: 2;
+  background: rgba(251, 231, 124, 0.85);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  clip-path: polygon(0 10%, 3% 0, 7% 12%, 11% 0, 93% 0, 97% 10%, 100% 0, 100% 90%, 97% 100%, 93% 88%, 89% 100%, 7% 100%, 3% 90%, 0 100%);
+  pointer-events: none;
+}
+
+/* grid: lưới 2 cột, ảnh mép xé, xoay xen kẽ */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 14px;
+}
+.grid .item {
+  aspect-ratio: 4 / 5;
+  padding: 4px;
+}
+.grid .item:nth-child(odd) {
+  rotate: -1.5deg;
+}
+.grid .item:nth-child(even) {
+  rotate: 1.5deg;
+}
+.more {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--ff-display);
+  font-weight: 800;
+  font-size: 44px;
+  color: var(--butter);
+  background: rgba(36, 89, 214, 0.82);
+}
+
+/* scatter: polaroid rải lộn xộn, chồng lên nhau; vị trí/góc xoay sinh bằng PRNG seed (--x --y --r --z) */
+.scatter {
+  position: relative;
+  height: calc(var(--rows) * 200px + 70px);
+}
+.scatter .item {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 54%;
+  padding: 8px 8px 30px;
+  background: #fffdf7;
+  rotate: var(--r);
+  z-index: var(--z);
+  transition:
+    rotate 0.25s,
+    scale 0.25s;
+}
+.scatter .item:hover {
+  scale: 1.04;
+  z-index: 20;
+}
+.scatter .item img {
+  aspect-ratio: 1;
+  height: auto;
+}
+
+/* slider: cuộn ngang bằng scroll-snap, không cần thư viện */
+.slider {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin: 0 -20px;
+  padding: 10px 20px 18px;
+  scroll-padding: 0 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--orange) transparent;
+}
+.slider .item {
+  flex: 0 0 74%;
+  scroll-snap-align: center;
+  aspect-ratio: 4 / 5;
+  padding: 6px;
+  background: #fffdf7;
+}
+.slider .item:nth-child(odd) {
+  rotate: -1deg;
+}
+.slider .item:nth-child(even) {
+  rotate: 1deg;
+}
+
+/* tape: collage ô to nhỏ khác nhau, dán băng keo. Chu kỳ 5 ô lấp đầy khối 6 cột x 6 hàng nhờ dense */
+.tape {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: 52px;
+  grid-auto-flow: dense;
+  gap: 10px;
+}
+.tape .item {
+  padding: 5px;
+  background: #fffdf7;
+}
+.tape .item:nth-child(5n + 1) {
+  grid-column: span 4;
+  grid-row: span 3;
+  rotate: -1deg;
+}
+.tape .item:nth-child(5n + 2) {
+  grid-column: span 2;
+  grid-row: span 2;
+  rotate: 2deg;
+}
+.tape .item:nth-child(5n + 3) {
+  grid-column: span 2;
+  grid-row: span 2;
+  rotate: -2deg;
+}
+.tape .item:nth-child(5n + 4) {
+  grid-column: span 4;
+  grid-row: span 3;
+  rotate: 1deg;
+}
+.tape .item:nth-child(5n + 5) {
+  grid-column: span 2;
+  grid-row: span 2;
+  rotate: -1.5deg;
+}
+.tape .item button {
+  height: 100%;
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 28, 70, 0.92);
+  cursor: zoom-out;
+}
+.lightbox img {
+  max-width: min(92vw, 900px);
+  max-height: 86dvh;
+  object-fit: contain;
+  border: 6px solid #fffdf7;
+  border-radius: 3px;
+  background: #fff;
+}
+.lbClose,
+.lbNav {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--navy, #1d2f6f);
+  background: #fbe77c;
+  border: 3px solid #e45d27;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.lbClose {
+  top: 14px;
+  right: 14px;
+}
+.lbNav {
+  top: 50%;
+  translate: 0 -50%;
+}
+.lbPrev {
+  left: 10px;
+}
+.lbNext {
+  right: 10px;
+}
