@@ -272,6 +272,8 @@ export function Tn13Fields({
           </button>
         </div>
 
+        <p className={f.hint}>Màu được áp dụng đồng bộ cho phong bì, chữ, nút và nền thiệp.</p>
+
         <input
           ref={coverInput}
           type="file"

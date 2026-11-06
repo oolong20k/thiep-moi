@@ -15,7 +15,7 @@ const paras = (t: string) =>
 
 /* ───────────── Hero ───────────── */
 
-export function Hero({ data, guest }: { data: Tn13Data; guest?: string }) {
+export function Hero({ data, guest, textOnly = false }: { data: Tn13Data; guest?: string; textOnly?: boolean }) {
   const g = data.graduate;
   const c = data.ceremony;
   const displayName = g.nickname || g.fullName || '';
@@ -37,47 +37,50 @@ export function Hero({ data, guest }: { data: Tn13Data; guest?: string }) {
   return (
     <section className="ct-hero">
       <div className="ct-col">
-        <div className="ct-kicker reveal-piece" style={{ '--piece-delay': '20ms' } as React.CSSProperties}>
-          <i className="ct-kicker-line" aria-hidden="true" />
-          <span className="ct-kicker-pill">Ngày tốt nghiệp của mình</span>
-          <i className="ct-kicker-line" aria-hidden="true" />
-        </div>
-
-        <p className="ct-hero-title reveal-piece" style={{ '--piece-delay': '60ms' } as React.CSSProperties}>
-          {c.title || 'Lễ tốt nghiệp'}
-        </p>
-
-        {(g.coverPhoto || initials) && (
-          <div
-            className={`ct-frame reveal-piece ${g.coverPhoto ? 'has-photo' : ''}`.trim()}
-            style={{ '--piece-delay': '120ms' } as React.CSSProperties}
-          >
-            {frameCaps.map((cap, idx) => (
-              <span
-                key={cap.id}
-                className={`ct-cap ct-frame-cap ct-cap--c${cap.color} ${idx < 2 ? 'is-back' : 'is-front'}`}
-                style={cap.style}
-                aria-hidden="true"
-              >
-                <i className="ct-tassel" />
-              </span>
-            ))}
-            <figure className="ct-hero-photo">
-              {g.coverPhoto ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={g.coverPhoto} alt={displayName} />
-              ) : (
-                <span className="ct-hero-initials" aria-hidden="true">
-                  {initials}
-                </span>
-              )}
-            </figure>
-            <span className="ct-frame-tab">Tân cử nhân</span>
+        {!textOnly && <>
+          <div className="ct-kicker reveal-piece" style={{ '--piece-delay': '20ms' } as React.CSSProperties}>
+            <i className="ct-kicker-line" aria-hidden="true" />
+            <span className="ct-kicker-pill">Ngày tốt nghiệp của mình</span>
+            <i className="ct-kicker-line" aria-hidden="true" />
           </div>
-        )}
+
+          <p className="ct-hero-title reveal-piece" style={{ '--piece-delay': '60ms' } as React.CSSProperties}>
+            {c.title || 'Lễ tốt nghiệp'}
+          </p>
+
+          {(g.coverPhoto || initials) && (
+            <div
+              className={`ct-frame reveal-piece ${g.coverPhoto ? 'has-photo' : ''}`.trim()}
+              style={{ '--piece-delay': '120ms' } as React.CSSProperties}
+            >
+              {frameCaps.map((cap, idx) => (
+                <span
+                  key={cap.id}
+                  className={`ct-cap ct-frame-cap ct-cap--c${cap.color} ${idx < 2 ? 'is-back' : 'is-front'}`}
+                  style={cap.style}
+                  aria-hidden="true"
+                >
+                  <i className="ct-tassel" />
+                </span>
+              ))}
+              <figure className="ct-hero-photo">
+                {g.coverPhoto ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={g.coverPhoto} alt={displayName} />
+                ) : (
+                  <span className="ct-hero-initials" aria-hidden="true">
+                    {initials}
+                  </span>
+                )}
+              </figure>
+              <span className="ct-frame-tab">Tân cử nhân</span>
+            </div>
+          )}
+
+        </>}
 
         <div className="ct-hero-text reveal-piece" style={{ '--piece-delay': '180ms' } as React.CSSProperties}>
-          {displayName && <h1 className="ct-hero-name">{displayName}</h1>}
+          {displayName && (textOnly ? <h2 className="ct-hero-name">{displayName}</h2> : <h1 className="ct-hero-name">{displayName}</h1>)}
           {g.greeting && <p className="ct-hero-sub">{g.greeting}</p>}
         </div>
 

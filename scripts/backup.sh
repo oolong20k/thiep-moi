@@ -1,10 +1,29 @@
 #!/bin/sh
-# Backup SQLite an toàn khi đang chạy (dùng .backup, không cp). Cron hằng đêm trên VM:
-#   0 3 * * * cd /path/to/thiep-moi && ./scripts/backup.sh
-# Ảnh upload nằm ở data/uploads: rsync/tar thư mục đó riêng nếu cần.
+# Snapshot nhất quán của SQLite đang chạy, kèm toàn bộ ảnh upload.
 set -eu
-DATA="${DATA_DIR:-./data}"
-OUT="${BACKUP_DIR:-./backups}"
-mkdir -p "$OUT"
-sqlite3 "$DATA/app.db" ".backup '$OUT/app-$(date +%Y%m%d-%H%M%S).db'"
-find "$OUT" -name 'app-*.db' -mtime +14 -delete
+python3 - "${DATA_DIR:-./data}" "${BACKUP_DIR:-./backups}" <<'PY'
+import datetime
+import pathlib
+import sqlite3
+import sys
+import tarfile
+import tempfile
+
+source, output = map(pathlib.Path, sys.argv[1:])
+source = source.resolve()
+output.mkdir(parents=True, exist_ok=True)
+stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
+archive = output / f'thiep-moi-data-{stamp}.tar.gz'
+with tempfile.TemporaryDirectory(dir=output) as temporary:
+    snapshot = pathlib.Path(temporary) / 'app.db'
+    with sqlite3.connect(f'{source.as_uri()}/app.db?mode=ro', uri=True) as live:
+        with sqlite3.connect(snapshot) as destination:
+            live.backup(destination)
+            if destination.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
+                raise RuntimeError('SQLite integrity check failed')
+    with tarfile.open(archive, 'w:gz') as bundle:
+        bundle.add(snapshot, arcname='app.db')
+        if (source / 'uploads').exists():
+            bundle.add(source / 'uploads', arcname='uploads')
+print(archive.resolve())
+PY
