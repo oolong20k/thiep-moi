@@ -41,3 +41,25 @@ Backup hằng đêm (tuỳ chọn): `0 3 * * * cd /path/to/thiep-moi && ./script
 
 - Mất link sửa là không sửa lại được (không có tài khoản). Trình duyệt đã tạo thiệp có danh sách ở `/my`.
 - Chạy `npm test` khi có `SUPABASE_*` trong môi trường thì bộ test chạy trên chính project Supabase đó (sẽ tạo vài dòng thiệp thử).
+
+## Server hiện tại: giữ nguyên dữ liệu khi deploy
+
+- Service: `thiep-moi.service`, code tại `/opt/thiep-moi`.
+- `DATA_DIR=/opt/thiep-moi/data` chứa SQLite (`app.db` và WAL) cùng `uploads/`.
+- Nội dung đã duyệt nằm trong database, không nằm trong `templates/tn13/sample.ts`. Không seed hoặc ghi đè database khi cập nhật giao diện.
+- Ảnh mẫu cũ `/sample/person.svg` chuyển tới hình tốt nghiệp mới qua redirect, giữ nguyên URL đã lưu trong thiệp.
+
+Chạy local với cùng đường dẫn gốc như production để xem database đồng bộ mà không sửa URL trong dữ liệu:
+
+```sh
+NEXT_PUBLIC_BASE_PATH=/thiep-moi NEXT_DIST_DIR=.next-dev npm run dev -- --port 4010
+# http://localhost:4010/thiep-moi/t/h2m4ns3n
+```
+
+Khi cần deploy, chạy `sh scripts/deploy.sh`. Script tạo snapshot SQLite nhất quán kèm ảnh vào `/home/ubuntu/backups/thiep-moi`, sau đó rsync **chỉ code**, giữ nguyên `data/`, `backups/` và `.env*` trên server. Không dùng `--delete-excluded`, không copy `data/` local lên production. Build dùng `NEXT_PUBLIC_BASE_PATH=/thiep-moi` và restart service với `DATA_DIR` hiện tại. Nếu build lỗi, script trả lỗi và thử khởi động lại service; có thể cần deploy lại code để phục hồi giao diện, snapshot dữ liệu vẫn được giữ.
+
+Backup riêng: `DATA_DIR=/opt/thiep-moi/data BACKUP_DIR=/home/ubuntu/backups/thiep-moi sh scripts/backup.sh`. Script dùng Python 3 có sẵn trên server, không cần CLI `sqlite3`.
+
+Để khôi phục: dừng service, giữ thêm bản sao thư mục `data/` hiện tại, giải nén snapshot vào **thư mục data mới**, đặt lại quyền cho `ubuntu`, rồi đổi thư mục và khởi động service. Không giải nén database lên một kết nối SQLite đang mở hoặc giữ lại WAL cũ khi thay database.
+
+Màu chủ đạo và màu nhấn trong editor được áp dụng đồng bộ cho hoạt cảnh, chữ, nút, nền thiệp và preview. Nút Mặc định khôi phục bảng màu xanh pastel và vàng dịu. Toàn bộ lượt mở phong bì và hiện ảnh mất khoảng 1,2 giây trước khi bắt đầu tự cuộn.

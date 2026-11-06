@@ -9,6 +9,22 @@ import type { Skin } from './skin';
 import { youtubeId } from '@/lib/music';
 import { shades } from '@/lib/color';
 
+// Hoạt cảnh, nội dung và preview luôn dùng cùng màu đã chọn trong editor.
+function cardStyle(data: Tn13Data): React.CSSProperties {
+  const palette = shades(data.graduate.mainColor ?? '#b8cbea', data.graduate.accentColor ?? '#f3dfb5');
+  return {
+    ...palette,
+    '--ct-ink': palette['--ct-main-text'],
+    '--ct-ink-2': palette['--ct-main-deep'],
+    '--ct-text': palette['--ct-main-deep'],
+    '--ct-muted': `color-mix(in srgb, ${palette['--ct-main-text']}, #61717a 40%)`,
+    '--ct-cap-3': palette['--ct-main-hi'],
+    '--ct-cap-4': palette['--ct-accent-soft'],
+    '--public-main': palette['--ct-main-text'],
+    '--public-accent': palette['--ct-accent'],
+  } as React.CSSProperties;
+}
+
 export type CardProps = {
   data: Tn13Data;
   slug?: string; // có slug = thiệp công khai, RSVP/lời chúc ghi vào DB
@@ -28,11 +44,11 @@ export default function Card({
   skipOpening = false,
   albumLayout,
 }: CardProps) {
-  const rootStyle = shades(data.graduate.mainColor ?? '#b8cbea', data.graduate.accentColor ?? '#f3dfb5') as React.CSSProperties;
+  const rootStyle = cardStyle(data);
   const album = albumLayout ?? data.album.layout;
 
   const [phase, setPhase] = useState<Phase>(preview || skipOpening ? 'done' : 'idle');
-  const [detailVisible, setDetailVisible] = useState<boolean>(preview || skipOpening);
+  const detailVisible = phase === 'done';
   const [playing, setPlaying] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const videoId = youtubeId(data.music.url);
@@ -52,12 +68,20 @@ export default function Card({
     return () => timersRef.current.forEach(clearTimeout);
   }, []);
 
-  // Nếu vào thẳng với skipOpening=true (nhưng không phải preview trong editor), kích hoạt scroll reveal ngay
+  const openingVisible = phase !== 'done';
   useEffect(() => {
-    if (skipOpening && !preview) {
-      setDetailVisible(true);
-    }
-  }, [skipOpening, preview]);
+    if (!openingVisible) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previous; };
+  }, [openingVisible]);
+
+  useEffect(() => {
+    if (!detailVisible || preview || skipOpening) return;
+    refreshScrollReveal();
+    startAutoScroll();
+    detailRef.current?.focus({ preventScroll: true });
+  }, [detailVisible, preview, skipOpening, refreshScrollReveal, startAutoScroll]);
 
   function toss() {
     if (phase !== 'idle') return;
@@ -81,20 +105,14 @@ export default function Card({
       } catch {}
     }
 
-    const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     setPhase('tossing');
 
     const t1 = setTimeout(() => {
       setPhase('rising');
-    }, reduced ? 0 : 900);
+    }, 180);
 
+    // Mở phong bì 180ms + hiện ảnh 320ms, bắt đầu cuộn sau tổng 1.2s.
     const t2 = setTimeout(() => {
-      setPhase('fading');
-      setDetailVisible(true);
-      requestAnimationFrame(() => refreshScrollReveal());
-    }, reduced ? 20 : 1150);
-
-    const t3 = setTimeout(() => {
       setPhase('done');
       if (audio) {
         audio
@@ -102,10 +120,9 @@ export default function Card({
           .then(() => setPlaying(true))
           .catch(() => setPlaying(false));
       }
-      startAutoScroll(900);
-    }, reduced ? 60 : 1650);
+    }, 1200);
 
-    timersRef.current.push(t1, t2, t3);
+    timersRef.current.push(t1, t2);
   }
 
   function toggleMusic() {
@@ -201,13 +218,15 @@ export default function Card({
           }}
         />
       )}
-      {phase !== 'done' && <Opening data={data} guest={guest} phase={phase} onToss={toss} />}
+      <Opening data={data} guest={guest} phase={phase} onToss={toss} preview={preview} />
       <div
         ref={detailRef}
         className="ct-detail"
+        tabIndex={-1}
+        inert={phase !== 'done'}
         style={{ display: detailVisible ? undefined : 'none' }}
       >
-        <Hero data={data} guest={guest} />
+        <Hero data={data} guest={guest} textOnly />
         {showInvite && <Invite data={data} num={num()} />}
         {showAlbum && <Album data={data} layout={album} num={num()} onLightboxChange={setLightboxOpen} />}
         {showQuote && <Quote data={data} num={num()} />}
@@ -229,14 +248,14 @@ export default function Card({
 
   return (
     <RevealAll.Provider value={preview}>
-      {preview ? cardArticle : <div className="demo-page">{cardArticle}</div>}
+      {preview ? cardArticle : <div className="demo-page" style={rootStyle}>{cardArticle}</div>}
     </RevealAll.Provider>
   );
 }
 
 /** Ảnh thu nhỏ cho trang chủ (gallery): hiển thị phần Hero. */
 export function HeroThumb({ data }: { data: Tn13Data; skin?: Skin }) {
-  const rootStyle = shades(data.graduate.mainColor ?? '#b8cbea', data.graduate.accentColor ?? '#f3dfb5') as React.CSSProperties;
+  const rootStyle = cardStyle(data);
   return (
     <RevealAll.Provider value={true}>
       <article className="ct is-compact is-preview" style={{ ...rootStyle, maxHeight: 'none', overflow: 'hidden', boxShadow: 'none' }}>

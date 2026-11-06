@@ -97,9 +97,9 @@ button, input, textarea, select {
 
 
 /* A soft campus palette, shared by the opening and the invitation. */
-html, body { background: #f6f8f5; color: #344452; }
-.demo-page { background: radial-gradient(ellipse at 10% 10%, #e2ecf7, transparent 55%), radial-gradient(ellipse at 95% 65%, #f6e3e1, transparent 60%), #f6f8f5; }
-.ct { --ct-line: rgba(87,115,137,.16); --ct-line-strong: rgba(87,115,137,.28); --ct-muted: #596c7a; --ct-muted-2: #637582; background: radial-gradient(ellipse at 0% 10%, #e1ecf7, transparent 32%), radial-gradient(ellipse at 100% 48%, #eee8f4, transparent 35%), radial-gradient(ellipse at 0% 78%, #e6eee4, transparent 35%), #fcfaf5; }
+html, body { background: #f8f6ef; color: #344452; }
+.demo-page { min-height: 100svh; background: var(--ct-paper, #f8f6ef); }
+.ct { --ct-line: rgba(87,115,137,.16); --ct-line-strong: rgba(87,115,137,.28); --ct-muted: #596c7a; --ct-muted-2: #637582; background: var(--ct-paper); box-shadow: none; overflow: visible; }
 .cto { background: radial-gradient(ellipse at 5% 12%, #ddeaf6, transparent 58%), radial-gradient(ellipse at 95% 75%, #f4dfdf, transparent 55%), #fcfaf5; overflow-y: auto; }
 .cto-backdrop { background: linear-gradient(145deg, #dfeaf4, #e2eada 60%, #f5e8d2); border-radius: 48% 48% 28px 28px; transform: rotate(-2deg); }
 .cto-name, .ct-hero-name { font-family: var(--ff-display); font-weight: 600; line-height: 1.15; }
@@ -109,8 +109,8 @@ html, body { background: #f6f8f5; color: #344452; }
 .cto-open, .ct-formcard .base-button, .ct-formcard .rsvp-options button.is-active { background: var(--ct-main-text); color: #fff; }
 .cto-open { border-color: transparent; }
 .ct-card, .ct-introcard, .ct-board, .ct-run, .ct-formcard { background: rgba(255,255,255,.82); border-radius: 24px; }
-.ct-fill { background: linear-gradient(145deg, #e2ecf6, #eee7f3 65%, #f6e9dd); color: var(--ct-ink); }
-.ct-ink { background: linear-gradient(145deg, #e0ebe6, #e2eaf5 65%, #f0e7ef); color: var(--ct-ink); }
+.ct-fill { background: var(--ct-accent-soft); color: var(--ct-ink); }
+.ct-ink { background: var(--ct-accent-soft); color: var(--ct-ink); }
 .ct-thanksbox .ct-thanks-line-text, .ct-thanksbox .ct-thanks-msg, .ct-thanksbox .ct-thanks-sign-text, .ct-thanksbox .ct-thanks-meta, .ct-thanksbox .ct-thanks-etch { color: var(--ct-ink); }
 .ct-thanks-line { border-color: var(--ct-line-strong); }
 .ct-hero-name, .ct-hero-title, .ct-hero-headline { text-shadow: none; }
@@ -124,3 +124,79 @@ html, body { background: #f6f8f5; color: #344452; }
 .ct-calendar .mini-calendar header, .ct-mapframe .map-link, .ct-formcard .confirmed-mark { background: var(--ct-main-text); color: #fff; }
 .ct-countdown .countdown-box { background: var(--ct-main-soft); }
 .ct-calendar .day.is-wedding { background: var(--ct-main-text); color: #fff; }
+
+.ct .ct-detail:focus { outline: none; }
+
+.ct-tag-cap { background: var(--ct-accent); color: var(--ct-ink); }
+.ct-quote-cite { color: var(--ct-muted); }
+.ct-gift-title, .ct-gift-note { color: var(--ct-ink); }
+.ct-formcard .ct-mock-options span.is-active,
+.ct-formcard .ct-mock-rsvp button,
+.ct-formcard .ct-mock-wish button { background: var(--ct-main-text); color: #fff; }
+
+/* Giấy mời nét mực: cùng chất liệu với phong bì và minh hoạ. */
+.ct-detail .ct-section { padding-top: 30px; }
+.ct-detail .ct-card, .ct-detail .ct-ink, .ct-detail .ct-fill,
+.ct-detail .ct-run, .ct-detail .ct-formcard {
+  border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  padding: 24px 0;
+}
+.ct-meta { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 24px; padding: 22px 0; border-block: 1px solid var(--ct-line); }
+.ct-meta-item { display: block; padding: 0; border: 0; border-radius: 0; background: transparent; text-align: left; }
+.ct-meta-item--wide { grid-column: 1 / -1; }
+.ct-meta dt { margin-bottom: 6px; font-weight: 500; letter-spacing: .2em; }
+.ct-meta dd { font-weight: 500; }
+.ct-meta dd[data-text-style-key=heroSchoolName] { font-family: var(--ff-display); font-size: 25px; font-weight: 600; line-height: 1.2; }
+.ct-meta dd[data-text-style-key=heroClassName] { font-size: 14px; line-height: 1.6; }
+.ct-meta dd[data-text-style-key=heroYear] { font-family: var(--ff-display); font-size: 24px; font-weight: 500; }
+.ct-meta-item:has([data-text-style-key=heroYear]) { padding-left: 20px; border-left: 1px solid var(--ct-line); }
+.ct-tagrow { gap: 12px; padding-top: 0; }
+.ct-tag-cap { width: auto; height: auto; border: 0; background: transparent; box-shadow: none; transform: none; font-family: var(--ff-display); font-size: 22px; color: var(--ct-accent-text); }
+.ct-tag-cap .ct-tassel { display: none; }
+.ct-tag-text { font-size: 10px; font-weight: 500; letter-spacing: .2em; }
+.ct-tag-line { height: 1px; transform: rotate(-.5deg); }
+.ct-detail .ct-introcard {
+  padding: 28px 24px 32px; border: 1px solid var(--ct-line);
+  border-radius: 3px 10px 4px 8px;
+  background: color-mix(in srgb, var(--ct-accent-soft) 35%, var(--ct-paper));
+}
+.ct-introcard::before { content: ''; position: absolute; top: -7px; left: 26px; width: 62px; height: 14px; background: var(--ct-accent); opacity: .55; rotate: -3deg; }
+.ct-introcard::after { content: '✧'; position: absolute; bottom: 6px; right: 16px; color: var(--ct-accent-text); font-family: Georgia, serif; font-size: 27px; rotate: 12deg; pointer-events: none; }
+.ct-intro-from { gap: 6px; margin-bottom: 18px; }
+.ct-intro-from-label { font-weight: 500; font-size: 9px; }
+.ct-intro-host { font-family: var(--ff-display); font-size: 30px; font-weight: 600; }
+.ct-intro-line { font-family: var(--ff-display); font-size: 23px; font-weight: 500; line-height: 1.5; }
+.ct-detail .ct-board { padding: 24px 0 16px; border-block: 1px solid var(--ct-line); }
+.ct-board-title { font-family: var(--ff-display); font-size: 28px; font-weight: 600; }
+.ct-board-grid { gap: 0; }
+.ct-board-cell { padding: 16px 8px; border: 0; border-radius: 0; background: transparent; }
+.ct-board-right { border-left: 1px solid var(--ct-line); }
+.ct-board-cell--wide { border-top: 1px solid var(--ct-line); padding: 20px 0 8px; }
+.ct-board-head { font-weight: 500; }
+.ct-board-month { font-size: 10px; font-weight: 500; }
+.ct-board-v { font-family: var(--ff-display); font-size: 23px; font-weight: 600; line-height: 1.3; }
+.ct-countdown .countdown-box { margin-bottom: 0; padding-block: 14px; border: 0; border-bottom: 1px solid var(--ct-line); border-radius: 0; background: transparent; box-shadow: none; }
+.ct-countdown .countdown-box::before, .ct-countdown .countdown-box::after { display: none; }
+.ct-countdown .countdown-box strong { font-size: 30px; font-weight: 500; }
+.ct-countdown .countdown-box span { font-weight: 500; }
+.ct-detail .ct-calendar { padding: 0 12px 12px; border: 1px solid var(--ct-line); border-radius: 3px 10px 4px 8px; }
+.ct-calendar .mini-calendar header { border-bottom: 1px solid var(--ct-line); background: transparent; color: var(--ct-ink); font-family: var(--ff-display); font-size: 20px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.ct-calendar .day.is-wedding { border-radius: 50%; background: var(--ct-accent-soft); border-color: var(--ct-accent-text); color: var(--ct-ink); }
+.ct-detail .ct-run { border-block: 1px solid var(--ct-line); }
+.ct-run-title { font-family: var(--ff-display); font-size: 27px; font-weight: 600; }
+.ct-knot-time { padding: 3px 0; border: 0; border-radius: 0; background: transparent; font-family: var(--ff-display); font-size: 17px; font-weight: 600; }
+.ct-knot-title { font-weight: 500; }
+.ct-mapframe { border-radius: 3px 10px 4px 8px; }
+.ct-mapframe .map-link { border-radius: 3px; background: var(--ct-accent-soft); color: var(--ct-ink); font-weight: 500; }
+.ct-faqcard .ifq-caps { font-family: var(--ff-display); font-size: 28px; font-weight: 600; }
+.ct-faqcard .ifq-q, .ct-faqcard .ifq-q > span { font-weight: 500; }
+.ct-faqcard .ifq-q::before { content: '✧'; width: 14px; height: auto; border: 0; background: transparent; color: var(--ct-accent-text); font-family: Georgia, serif; font-size: 21px; transform: none; }
+.ct-detail .ct-thanksbox { border-top: 1px solid var(--ct-line); padding-top: 32px; }
+.ct-thanks-body { margin-top: 24px; }
+.ct-thanks-line { padding-left: 0; border: 0; border-radius: 0; }
+.ct-formcard .base-button, .ct-formcard .ct-btn { border-radius: 3px; }
+@media (max-width: 340px) {
+  .ct-meta { column-gap: 14px; }
+  .ct-meta-item:has([data-text-style-key=heroYear]) { padding-left: 14px; }
+  .ct-detail .ct-introcard { padding: 24px 18px 30px; }
+}
