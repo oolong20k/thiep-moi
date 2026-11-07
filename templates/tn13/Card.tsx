@@ -28,7 +28,7 @@ export default function Card({
   skipOpening = false,
   albumLayout,
 }: CardProps) {
-  const rootStyle = shades(data.graduate.mainColor ?? '#b8cbea', data.graduate.accentColor ?? '#f3dfb5') as React.CSSProperties;
+  const rootStyle = shades(data.graduate.mainColor, data.graduate.accentColor, data.graduate) as React.CSSProperties;
   const album = albumLayout ?? data.album.layout;
 
   const [phase, setPhase] = useState<Phase>(preview || skipOpening ? 'done' : 'idle');
@@ -64,21 +64,18 @@ export default function Card({
 
     if (videoId) {
       youtubeWanted.current = true;
+      youtubeCommand('seekTo', [5, true]);
       youtubeCommand('playVideo');
     }
 
-    // Unlock music ngay trong click handler
     const audio = audioRef.current;
     if (audio) {
       try {
-        const p = audio.play();
-        if (p && typeof p.then === 'function') {
-          p.then(() => {
-            audio.pause();
-            audio.currentTime = 0;
-          }).catch(() => {});
-        }
-      } catch {}
+        audio.currentTime = 5;
+        audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+      } catch {
+        setPlaying(false);
+      }
     }
 
     const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -96,12 +93,6 @@ export default function Card({
 
     const t3 = setTimeout(() => {
       setPhase('done');
-      if (audio) {
-        audio
-          .play()
-          .then(() => setPlaying(true))
-          .catch(() => setPlaying(false));
-      }
       startAutoScroll(900);
     }, reduced ? 60 : 1650);
 
@@ -126,8 +117,8 @@ export default function Card({
     }
   }
 
-  function youtubeCommand(func: string) {
-    youtubeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), 'https://www.youtube.com');
+  function youtubeCommand(func: string, args: (number | boolean)[] = []) {
+    youtubeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), 'https://www.youtube.com');
   }
 
   useEffect(() => {
@@ -190,7 +181,7 @@ export default function Card({
           ref={youtubeRef}
           title="Nhạc nền YouTube"
           className="ct-youtube"
-          src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1&loop=1&playlist=${videoId}`}
+          src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1&start=5&loop=1&playlist=${videoId}`}
           allow="autoplay; encrypted-media"
           tabIndex={-1}
           aria-hidden="true"
@@ -229,14 +220,14 @@ export default function Card({
 
   return (
     <RevealAll.Provider value={preview}>
-      {preview ? cardArticle : <div className="demo-page">{cardArticle}</div>}
+      {preview ? cardArticle : <div className="demo-page" style={rootStyle}>{cardArticle}</div>}
     </RevealAll.Provider>
   );
 }
 
 /** Ảnh thu nhỏ cho trang chủ (gallery): hiển thị phần Hero. */
 export function HeroThumb({ data }: { data: Tn13Data; skin?: Skin }) {
-  const rootStyle = shades(data.graduate.mainColor ?? '#b8cbea', data.graduate.accentColor ?? '#f3dfb5') as React.CSSProperties;
+  const rootStyle = shades(data.graduate.mainColor, data.graduate.accentColor, data.graduate) as React.CSSProperties;
   return (
     <RevealAll.Provider value={true}>
       <article className="ct is-compact is-preview" style={{ ...rootStyle, maxHeight: 'none', overflow: 'hidden', boxShadow: 'none' }}>
