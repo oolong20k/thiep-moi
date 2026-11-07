@@ -1,4 +1,5 @@
 import type { Tn13Data } from './schema';
+import { DEFAULT_COLORS } from '@/lib/color';
 
 export const sample: Tn13Data = {
   graduate: {
@@ -12,8 +13,7 @@ export const sample: Tn13Data = {
     greeting:
       'Mình tốt nghiệp rồi! Ghé sảnh trường chung vui và chụp hình cùng mình nha.',
     coverPhoto: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/sample/person.svg`,
-    mainColor: '#b8cbea',
-    accentColor: '#f3dfb5',
+    ...DEFAULT_COLORS,
     guestNote: 'Hẹn bạn ở sảnh chính của trường, tụi mình chụp thật nhiều hình kỷ niệm nha!',
   },
   hero: { layout: 'torn' },

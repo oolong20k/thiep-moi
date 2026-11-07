@@ -1,5 +1,13 @@
-const DEFAULT_MAIN = '#b8cbea';
-const DEFAULT_ACCENT = '#f3dfb5';
+export const DEFAULT_COLORS = {
+  mainColor: '#eab8c2',
+  accentColor: '#1a561e',
+  textColor: '#29372c',
+  pageColor: '#fbf6f2',
+  cardColor: '#fffdf8',
+  envelopeColor: '#eab8c2',
+};
+const DEFAULT_MAIN = DEFAULT_COLORS.mainColor;
+const DEFAULT_ACCENT = DEFAULT_COLORS.accentColor;
 
 function parseHex(hex: string): [number, number, number] | null {
   let t = String(hex || '').trim().replace(/^#/, '');
@@ -92,24 +100,43 @@ function rgbStr(hex: string, fallback: string): string {
 const MAIN_OPTS: TuneOpts = { satMin: 0.12, satMax: 0.45, hueFallback: 262, greySat: 0.25 };
 const ACCENT_OPTS: TuneOpts = { satMin: 0.15, satMax: 0.55, hueFallback: 45, greySat: 0.3 };
 
-export function shades(mainHex = DEFAULT_MAIN, accentHex = DEFAULT_ACCENT): Record<string, string> {
+export function shades(mainHex = DEFAULT_MAIN, accentHex = DEFAULT_ACCENT, overrides: {
+  textColor?: string;
+  pageColor?: string;
+  cardColor?: string;
+  envelopeColor?: string;
+} = {}): Record<string, string> {
   const main = tuneColor(mainHex, { lumMin: 0.48, lumMax: 0.65, ...MAIN_OPTS }, DEFAULT_MAIN);
-  const accent = tuneColor(accentHex, { lumMin: 0.58, lumMax: 0.72, ...ACCENT_OPTS }, DEFAULT_ACCENT);
+  const accent = tuneColor(accentHex, ACCENT_OPTS, DEFAULT_ACCENT);
+  const mainText = tuneColor(mainHex, { lumMax: 0.10, ...MAIN_OPTS }, '#581ec8');
+  const mainDeep = tuneColor(mainHex, { lumMax: 0.065, ...MAIN_OPTS }, '#401693');
+  const paper = tuneColor(accentHex, { lumMin: 0.935, lumMax: 0.955, satMax: 0.8, satMin: 0.5, hueFallback: 45, greySat: 0.6 }, '#fdf9ed');
   return {
     '--ct-main': main,
     '--ct-main-rgb': rgbStr(main, '107, 47, 224'),
     '--ct-main-hi': tuneColor(mainHex, { lumMin: 0.68, lumMax: 0.78, ...MAIN_OPTS }, '#9469e9'),
-    '--ct-main-text': tuneColor(mainHex, { lumMax: 0.10, ...MAIN_OPTS }, '#581ec8'),
+    '--ct-main-text': mainText,
     '--ct-main-soft': tuneColor(mainHex, { lumMin: 0.86, lumMax: 0.91, satMax: 0.7, hueFallback: 262, greySat: 0.25 }, '#f3eefc'),
-    '--ct-main-deep': tuneColor(mainHex, { lumMax: 0.065, ...MAIN_OPTS }, '#401693'),
+    '--ct-main-deep': mainDeep,
     '--ct-accent': accent,
     '--ct-accent-rgb': rgbStr(accent, '255, 201, 51'),
     '--ct-accent-text': tuneColor(accentHex, { lumMax: 0.12, satMax: 0.95, satMin: 0.6, hueFallback: 45, greySat: 0.7 }, '#7c5c03'),
     '--ct-accent-soft': tuneColor(accentHex, { lumMin: 0.9, lumMax: 0.94, satMax: 0.9, hueFallback: 45, greySat: 0.7 }, '#fdf5dd'),
-    '--ct-paper': tuneColor(accentHex, { lumMin: 0.935, lumMax: 0.955, satMax: 0.8, satMin: 0.5, hueFallback: 45, greySat: 0.6 }, '#fdf9ed'),
+    '--ct-paper': paper,
     '--ct-cap-3': tuneColor(mainHex, { lumMin: 0.6, lumMax: 0.7, satMin: 0.15, satMax: 0.4, hueFallback: 262, greySat: 0.6, hueShift: 40 }, '#e02fdf'),
     '--ct-cap-4': tuneColor(accentHex, { lumMin: 0.65, lumMax: 0.75, satMin: 0.15, satMax: 0.5, hueFallback: 45, greySat: 0.8, hueShift: -40 }, '#ff6257'),
-    '--public-main': mainHex || DEFAULT_MAIN,
+    '--ct-ink': overrides.textColor ?? mainText,
+    '--ct-ink-2': overrides.textColor ?? mainDeep,
+    '--ct-text': overrides.textColor ?? mainDeep,
+    '--ct-muted': overrides.textColor ?? mainText,
+    '--ct-muted-2': overrides.textColor ?? mainText,
+    '--ct-line': 'color-mix(in srgb, var(--ct-ink), transparent 84%)',
+    '--ct-line-strong': 'color-mix(in srgb, var(--ct-ink), transparent 72%)',
+    '--ct-page-bg': overrides.pageColor ?? paper,
+    '--ct-card-bg': overrides.cardColor ?? paper,
+    '--ct-envelope': overrides.envelopeColor ?? accent,
+    '--ct-envelope-soft': 'color-mix(in srgb, var(--ct-envelope), white 65%)',
+    '--public-main': mainText,
     '--public-accent': accentHex || DEFAULT_ACCENT,
   };
 }

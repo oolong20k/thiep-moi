@@ -130,7 +130,8 @@ test('mẫu tn13: tạo được, mainColor sai bị 400, mẫu lạ bị 400', 
   const c = (await r.json()) as { id: string; slug: string; editToken: string };
   const info = await (await fetch(`${BASE}/api/cards/${c.id}`, { headers: bearer(c.editToken) })).json();
   assert.equal(info.template, 'tn13');
-  assert.equal(info.draft.graduate.mainColor, '#b8cbea');
+  assert.equal(info.draft.graduate.mainColor, '#eab8c2');
+  assert.equal(info.draft.graduate.accentColor, '#1a561e');
   assert.equal(info.draft.album.visible, false);
   assert.deepEqual(info.draft.album.photos, []);
   assert.equal(info.draft.interact.wishes, false);
@@ -148,4 +149,65 @@ test('mẫu tn13: tạo được, mainColor sai bị 400, mẫu lạ bị 400', 
 
   const bad = await fetch(`${BASE}/api/cards`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ template: 'nope' }) });
   assert.equal(bad.status, 400);
+});
+
+test('custom colors persist, publish, reset and reject invalid CSS', async () => {
+  const c = await create();
+  const d = await draftOf(c);
+  const colors = { textColor: '#123456', pageColor: '#fedcba', cardColor: '#ffffff', envelopeColor: '#98dfb0' };
+  Object.assign(d.graduate, colors);
+  assert.equal((await put(c, c.editToken, d)).status, 200);
+  const saved = await draftOf(c);
+  for (const [key, value] of Object.entries(colors)) assert.equal(saved.graduate[key], value);
+  assert.equal((await fetch(`${BASE}/api/cards/${c.id}/publish`, { method: 'POST', headers: bearer(c.editToken) })).status, 200);
+  const html = await (await fetch(`${BASE}/t/${c.slug}`)).text();
+  for (const [variable, value] of Object.entries({ '--ct-ink': colors.textColor, '--ct-page-bg': colors.pageColor, '--ct-card-bg': colors.cardColor, '--ct-envelope': colors.envelopeColor })) {
+    assert.ok(html.includes(`${variable}:${value}`));
+  }
+  for (const key of Object.keys(colors)) {
+    assert.equal((await put(c, c.editToken, { ...d, graduate: { ...d.graduate, [key]: 'red; background: url(evil)' } })).status, 400);
+    delete d.graduate[key];
+  }
+  assert.equal((await put(c, c.editToken, d)).status, 200);
+  const reset = await draftOf(c);
+  for (const key of Object.keys(colors)) assert.equal(reset.graduate[key], undefined);
+});
+
+test('opening has no intermediate portrait and YouTube is prepared at 00:05', async () => {
+  const c = await create();
+  const d = await draftOf(c);
+  d.music = { visible: true, url: 'https://youtu.be/sctrgmZ_JNM' };
+  assert.equal((await put(c, c.editToken, d)).status, 200);
+  assert.equal((await fetch(`${BASE}/api/cards/${c.id}/publish`, { method: 'POST', headers: bearer(c.editToken) })).status, 200);
+  const html = await (await fetch(`${BASE}/t/${c.slug}`)).text();
+  const opening = html.match(/role="dialog"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(opening, 'envelope opening must be rendered');
+  assert.ok(opening.includes('Mở thiệp tốt nghiệp'));
+  assert.ok(!opening.includes('<img'), 'portrait belongs only in the inner content');
+  assert.match(html, /youtube\.com\/embed\/sctrgmZ_JNM\?[^"<>]*start=5/);
+});
+
+test('portrait framing persists and rejects transforms outside the editor limits', async () => {
+  const c = await create();
+  const d = await draftOf(c);
+  const transform = { zoom: 1.4, rotation: 30, x: 12, y: -8 };
+  d.graduate.coverTransform = transform;
+  assert.equal((await put(c, c.editToken, d)).status, 200);
+  assert.deepEqual((await draftOf(c)).graduate.coverTransform, transform);
+  for (const invalid of [{ zoom: 0 }, { zoom: 4 }, { rotation: 181 }, { x: 101 }, { y: -101 }]) {
+    assert.equal((await put(c, c.editToken, { ...d, graduate: { ...d.graduate, coverTransform: { ...transform, ...invalid } } })).status, 400);
+  }
+  assert.equal((await fetch(`${BASE}/api/cards/${c.id}/publish`, { method: 'POST', headers: bearer(c.editToken) })).status, 200);
+  const html = await (await fetch(`${BASE}/t/${c.slug}?to=KhachThu`)).text();
+  assert.ok(html.includes('translate(12%, -8%) rotate(30deg) scale(1.4)'));
+  const hero = html.match(/class="ct-hero"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(hero?.includes('Thân mời') || hero?.includes('THÂN MỜI'));
+  assert.ok(hero?.includes('KhachThu'));
+  assert.ok(hero && !hero.includes('ct-introcard'), 'hero keeps school metadata and the guest note');
+  const invitation = html.match(/class="ct-section ct-intro reveal"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(invitation?.includes('01'));
+  assert.ok(invitation?.includes('Người mời'));
+  assert.ok(invitation?.includes('Võ Thị Ngọc Hiền'));
+  assert.ok(invitation?.includes(d.messages.invitation.split('\n')[0]));
+  assert.ok(html.indexOf('class="ct-section ct-intro reveal"') > html.indexOf('class="ct-hero"'));
 });
