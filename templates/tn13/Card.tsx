@@ -36,8 +36,11 @@ export default function Card({
   const [playing, setPlaying] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const videoId = youtubeId(data.music.url);
-  const youtubeRef = useRef<HTMLIFrameElement>(null);
-  const youtubeWanted = useRef(false);
+  const [youtubeOpen, setYoutubeOpen] = useState(false);
+  const [musicError, setMusicError] = useState('');
+  const musicCloseRef = useRef<HTMLButtonElement>(null);
+  const musicTriggerRef = useRef<HTMLButtonElement>(null);
+  const audioStartPending = useRef(false);
 
   const detailRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -45,7 +48,7 @@ export default function Card({
 
   const { refreshScrollReveal } = useScrollReveal(detailRef, detailVisible, preview);
   const { startAutoScroll } = useAutoScroll({
-    disabled: () => preview || !detailVisible || lightboxOpen,
+    disabled: () => preview || !detailVisible || lightboxOpen || youtubeOpen,
   });
 
   useEffect(() => {
@@ -62,21 +65,8 @@ export default function Card({
   function toss() {
     if (phase !== 'idle') return;
 
-    if (videoId) {
-      youtubeWanted.current = true;
-      youtubeCommand('seekTo', [5, true]);
-      youtubeCommand('playVideo');
-    }
-
-    const audio = audioRef.current;
-    if (audio) {
-      try {
-        audio.currentTime = 5;
-        audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
-      } catch {
-        setPlaying(false);
-      }
-    }
+    // Audio must start in this click handler, before the opening animation.
+    if (!videoId) playAudio(true);
 
     const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     setPhase('tossing');
@@ -99,56 +89,60 @@ export default function Card({
     timersRef.current.push(t1, t2, t3);
   }
 
+  function playAudio(fromStart = false) {
+    const audio = audioRef.current;
+    if (!audio) return;
+    setMusicError('');
+    if (fromStart) audioStartPending.current = true;
+    if (audio.error) audio.load();
+    if (audio.readyState >= 1) seekAudioStart();
+    audio.muted = false;
+    // Do not wait for metadata: that loses the user gesture in some WebViews.
+    void audio.play().catch(() => {
+      setPlaying(false);
+      setMusicError('Chạm nút nhạc để thử phát lại.');
+    });
+  }
+
+  function seekAudioStart() {
+    const audio = audioRef.current;
+    if (!audio || !audioStartPending.current) return;
+    try {
+      audio.currentTime = Number.isFinite(audio.duration) && audio.duration <= 5 ? 0 : 5;
+      audioStartPending.current = false;
+    } catch { /* Metadata is not available yet; loadedmetadata will retry the seek. */ }
+  }
+
   function toggleMusic() {
     if (videoId) {
-      youtubeWanted.current = !youtubeWanted.current;
-      youtubeCommand(youtubeWanted.current ? 'playVideo' : 'pauseVideo');
+      setYoutubeOpen((open) => !open);
       return;
     }
-    const a = audioRef.current;
-    if (!a) return;
-    if (a.paused) {
-      a.play()
-        .then(() => setPlaying(true))
-        .catch(() => setPlaying(false));
-    } else {
-      a.pause();
-      setPlaying(false);
-    }
+    if (audioRef.current?.paused) playAudio();
+    else audioRef.current?.pause();
   }
 
-  function youtubeCommand(func: string, args: (number | boolean)[] = []) {
-    youtubeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), 'https://www.youtube.com');
+  function closeYoutube() {
+    setYoutubeOpen(false);
+    musicTriggerRef.current?.focus();
   }
 
   useEffect(() => {
-    const onMessage = (event: MessageEvent) => {
-      if (event.origin !== 'https://www.youtube.com' || event.source !== youtubeRef.current?.contentWindow) return;
-      let message;
-      try { message = typeof event.data === 'string' ? JSON.parse(event.data) : event.data; } catch { return; }
-      if (message?.event === 'onReady' && youtubeWanted.current) youtubeCommand('playVideo');
-      const state = message?.event === 'onStateChange' ? message.info : message?.info?.playerState;
-      if (typeof state === 'number') setPlaying(state === 1);
-      if (message?.event === 'onError' || message?.event === 'onAutoplayBlocked') {
-        youtubeWanted.current = false;
-        setPlaying(false);
-      }
-    };
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
-  }, [videoId]);
+    if (youtubeOpen) musicCloseRef.current?.focus();
+  }, [youtubeOpen]);
 
   useEffect(() => {
-    youtubeWanted.current = false;
+    audioStartPending.current = false;
+    setYoutubeOpen(false);
     setPlaying(false);
+    setMusicError('');
   }, [data.music.url, data.music.visible]);
 
   useEffect(() => {
     const onVis = () => {
       if (document.hidden) {
         audioRef.current?.pause();
-        youtubeWanted.current = false;
-        youtubeCommand('pauseVideo');
+        setYoutubeOpen(false);
         setPlaying(false);
       }
     };
@@ -176,21 +170,13 @@ export default function Card({
 
   const cardArticle = (
     <article className={`ct ${preview ? 'is-compact is-preview' : ''}`.trim()} style={rootStyle}>
-      {showMusic && videoId && (
-        <iframe
-          ref={youtubeRef}
-          title="Nhạc nền YouTube"
-          className="ct-youtube"
-          src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1&start=5&loop=1&playlist=${videoId}`}
-          allow="autoplay; encrypted-media"
-          tabIndex={-1}
-          aria-hidden="true"
-          onLoad={() => {
-            youtubeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 'card-music' }), 'https://www.youtube.com');
-            youtubeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onStateChange'] }), 'https://www.youtube.com');
-            if (youtubeWanted.current) youtubeCommand('playVideo');
-          }}
-        />
+      {showMusic && !videoId && (
+        <audio ref={audioRef} src={data.music.url} loop preload="auto"
+          onLoadedMetadata={seekAudioStart}
+          onPlaying={() => { setPlaying(true); setMusicError(''); }}
+          onPause={() => setPlaying(false)}
+          onWaiting={() => setPlaying(false)}
+          onError={() => { setPlaying(false); setMusicError('Không tải được nhạc. Chạm nút nhạc để thử lại.'); }} />
       )}
       {phase !== 'done' && <Opening data={data} guest={guest} phase={phase} onToss={toss} />}
       <div
@@ -210,8 +196,20 @@ export default function Card({
         {showThanks && <Thanks data={data} num={num()} />}
         {showMusic && (
           <>
-            <MusicButton playing={playing} onToggle={toggleMusic} />
-            {!videoId && <audio ref={audioRef} src={data.music.url} loop preload="auto" onPause={() => setPlaying(false)} onError={() => setPlaying(false)} />}
+            <MusicButton playing={playing} onToggle={toggleMusic} buttonRef={musicTriggerRef}
+              youtube={Boolean(videoId)} expanded={youtubeOpen} error={musicError} />
+            {videoId && youtubeOpen && (
+              <section className="ct-music-player" aria-label="Trình phát nhạc YouTube" data-no-autoscroll-toggle=""
+                onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); closeYoutube(); } }}>
+                <header><strong>Nhạc nền</strong><button ref={musicCloseRef} type="button" onClick={closeYoutube} aria-label="Đóng và dừng nhạc">×</button></header>
+                <p>Chạm ▶ trong video để phát nhạc. Đóng khung này sẽ dừng nhạc.</p>
+                <iframe title="Nhạc nền YouTube" className="ct-youtube"
+                  src={`https://www.youtube.com/embed/${videoId}?autoplay=0&playsinline=1&fs=0&start=5&loop=1&playlist=${videoId}`}
+                  allow="encrypted-media; picture-in-picture 'none'; fullscreen 'none'"
+                  referrerPolicy="strict-origin-when-cross-origin" />
+                <a href={`https://www.youtube.com/watch?v=${videoId}&t=5s`} target="_blank" rel="noopener noreferrer">Không phát được? Mở trên YouTube ↗</a>
+              </section>
+            )}
           </>
         )}
       </div>

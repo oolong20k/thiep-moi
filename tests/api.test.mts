@@ -173,10 +173,10 @@ test('custom colors persist, publish, reset and reject invalid CSS', async () =>
   for (const key of Object.keys(colors)) assert.equal(reset.graduate[key], undefined);
 });
 
-test('opening has no intermediate portrait and YouTube is prepared at 00:05', async () => {
+test('opening has no intermediate portrait or automatic YouTube player', async () => {
   const c = await create();
   const d = await draftOf(c);
-  d.music = { visible: true, url: 'https://youtu.be/sctrgmZ_JNM' };
+  d.music = { visible: true, url: 'https://music.youtube.com/watch?v=J9abt3xpdDU&si=9qKDxROan8b2T-wf' };
   assert.equal((await put(c, c.editToken, d)).status, 200);
   assert.equal((await fetch(`${BASE}/api/cards/${c.id}/publish`, { method: 'POST', headers: bearer(c.editToken) })).status, 200);
   const html = await (await fetch(`${BASE}/t/${c.slug}`)).text();
@@ -184,7 +184,22 @@ test('opening has no intermediate portrait and YouTube is prepared at 00:05', as
   assert.ok(opening, 'envelope opening must be rendered');
   assert.ok(opening.includes('Mở thiệp tốt nghiệp'));
   assert.ok(!opening.includes('<img'), 'portrait belongs only in the inner content');
-  assert.match(html, /youtube\.com\/embed\/sctrgmZ_JNM\?[^"<>]*start=5/);
+  assert.ok(!html.includes('youtube.com/embed/'), 'opening must not load or play a hidden video');
+  assert.ok(html.includes('Mở nhạc YouTube'), 'guest can explicitly open the player');
+  assert.ok(!html.includes('<audio'), 'YouTube Music must not be sent to an audio element');
+  d.music.visible = false;
+  assert.equal((await put(c, c.editToken, d)).status, 200);
+  await fetch(`${BASE}/api/cards/${c.id}/publish`, { method: 'POST', headers: bearer(c.editToken) });
+  const silent = await (await fetch(`${BASE}/t/${c.slug}`)).text();
+  assert.ok(!silent.includes('Mở nhạc YouTube'));
+  assert.ok(!silent.includes('<audio'));
+  d.music = { visible: true, url: 'https://example.com/music.m4a' };
+  assert.equal((await put(c, c.editToken, d)).status, 200);
+  await fetch(`${BASE}/api/cards/${c.id}/publish`, { method: 'POST', headers: bearer(c.editToken) });
+  const withAudio = await (await fetch(`${BASE}/t/${c.slug}`)).text();
+  assert.match(withAudio, /<audio[^>]*src="https:\/\/example.com\/music.m4a"/);
+  assert.ok(!withAudio.includes('youtube.com/embed/'));
+  assert.ok(withAudio.includes('Bật nhạc nền'));
 });
 
 test('portrait framing persists and rejects transforms outside the editor limits', async () => {
