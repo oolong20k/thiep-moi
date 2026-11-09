@@ -163,14 +163,12 @@ html, body { background: #f6f8f5; color: #344452; }
 .ct-board-day { font-size: var(--tt-boardDay-font-size, clamp(38px, 11vw, 46px)); font-weight: 600; line-height: 1.05; }
 .ct-board-month { font-weight: 600; letter-spacing: 0; line-height: 1.5; text-transform: none; }
 .ct-board-weekday {
-  font-family: var(--tt-boardWeekday-font-family, var(--ff-sans));
   font-size: var(--tt-boardWeekday-font-size, 12px);
   font-style: var(--tt-boardWeekday-font-style, normal);
   font-weight: 500;
   line-height: 1.5;
 }
 .ct-board-time {
-  font-family: var(--tt-boardTime-font-family, var(--ff-sans));
   font-size: var(--tt-boardTime-font-size, clamp(13px, 3.8vw, 18px));
   font-weight: 600;
   line-height: 1.5;
@@ -186,7 +184,6 @@ html, body { background: #f6f8f5; color: #344452; }
 .ct-tag-cap { color: var(--tt-sectionIndex-color, var(--ct-main-deep)); }
 .ct-note-text { font-size: var(--tt-heroGuestNote-font-size, 14px); line-height: 1.65; }
 .ct-intro-guest-text {
-  font-family: var(--tt-guestNoteText-font-family, var(--ff-sans));
   font-style: var(--tt-guestNoteText-font-style, normal);
   font-weight: 400;
   line-height: 1.7;
@@ -196,7 +193,7 @@ html, body { background: #f6f8f5; color: #344452; }
 .ct-quote-cite { color: var(--tt-quoteCite-color, var(--ct-muted)); font-weight: 500; }
 .ct-count-title, .ct-countdown .countdown-box span { font-weight: 600; }
 .ct-countdown .countdown-box span { font-size: var(--tt-countdownLabel-font-size, 10px); }
-.ct-count-done, .ct-wishcard .ct-wish-empty { font-family: var(--ff-sans); font-style: normal; font-weight: 500; }
+.ct-count-done, .ct-wishcard .ct-wish-empty { font-style: normal; font-weight: 500; }
 .ct-calendar .mini-calendar header, .ct-calendar .mini-calendar header strong { font-weight: 600; }
 .ct-calendar .weekday { font-weight: 600; }
 .ct-calendar .day.is-wedding { font-weight: 700; }
@@ -218,12 +215,11 @@ html, body { background: #f6f8f5; color: #344452; }
 .ct-albumcard .wedding-album__more { background: var(--ct-main-text); color: #fff; }
 .ct-formcard .rsvp-confirmed h4, .ct-formcard .wish-thanks strong { font-weight: 600; }
 .ct-formcard .wish-card strong { font-weight: 600; }
-.ct-formcard .wish-card p { font-family: var(--ff-sans); font-size: 14px; font-weight: 400; line-height: 1.7; }
+.ct-formcard .wish-card p { font-size: 14px; font-weight: 400; line-height: 1.7; }
 .ct-gift-title { font-size: var(--tt-envelopeTitle-font-size, 20px); font-weight: 700; color: var(--tt-envelopeTitle-color, var(--ct-ink)); }
 .ct-gift-note { color: var(--tt-envelopeNote-color, var(--ct-text)); }
 .ct-thanks-line-text, .ct-thanks-meta, .ct-thanks-etch, .ct-end-text { font-weight: 600; }
 .ct-thanks-msg {
-  font-family: var(--tt-thanksMessage-font-family, var(--ff-sans));
   font-size: var(--tt-thanksMessage-font-size, 15px);
   font-weight: 400;
   line-height: 1.75;
