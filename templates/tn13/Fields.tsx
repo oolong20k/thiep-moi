@@ -458,7 +458,7 @@ export function Tn13Fields({
         onVisibleChange={(v) => set((d) => (d.music.visible = v))}
       >
         <Text label="Link nhạc nền (YouTube hoặc file .mp3)" value={data.music.url} max={500} onChange={(v) => set((d) => (d.music.url = v))} />
-        <p className={f.hint}>Dùng link file MP3/M4A https để phát nhạc khi khách bấm &ldquo;Mở thiệp&rdquo;. Với link YouTube, khách cần mở nút nhạc rồi chạm phát trong video; trình duyệt Messenger/Zalo có thể mở màn hình video. Để trống nếu không dùng nhạc.</p>
+        <p className={f.hint}>Dùng link file MP3/M4A https để phát nhạc khi khách bấm &ldquo;Mở thiệp&rdquo;. YouTube/YouTube Music cũng được gọi phát từ giây 00:05 ngay khi bấm mở thiệp; nếu trình duyệt chặn phát, khách có thể thử lại trong khung nhạc. Để trống nếu không dùng nhạc.</p>
       </Group>
     </div>
   );

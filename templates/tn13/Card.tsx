@@ -4,6 +4,7 @@ import type { AlbumLayout, HeroLayout, Tn13Data } from './schema';
 import { Opening, type Phase } from './Opening';
 import { Hero, Invite, Album, Quote, Ceremony, Timeline, MapSection, Rsvp, Faq, Thanks } from './sections';
 import { MusicButton } from './parts/MusicButton';
+import { loadYoutubeAPI, type YoutubePlayer } from './parts/youtube-api';
 import { RevealAll, useAutoScroll, useScrollReveal } from './parts/Reveal';
 import type { Skin } from './skin';
 import { youtubeId } from '@/lib/music';
@@ -37,6 +38,11 @@ export default function Card({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const videoId = youtubeId(data.music.url);
   const [youtubeOpen, setYoutubeOpen] = useState(false);
+  const youtubeMountRef = useRef<HTMLDivElement>(null);
+  const youtubePlayerRef = useRef<YoutubePlayer | null>(null);
+  const youtubeReady = useRef(false);
+  const youtubeWanted = useRef(false);
+  const youtubeSeekPending = useRef(false);
   const [musicError, setMusicError] = useState('');
   const musicCloseRef = useRef<HTMLButtonElement>(null);
   const musicTriggerRef = useRef<HTMLButtonElement>(null);
@@ -48,7 +54,7 @@ export default function Card({
 
   const { refreshScrollReveal } = useScrollReveal(detailRef, detailVisible, preview);
   const { startAutoScroll } = useAutoScroll({
-    disabled: () => preview || !detailVisible || lightboxOpen || youtubeOpen,
+    disabled: () => preview || !detailVisible || lightboxOpen,
   });
 
   useEffect(() => {
@@ -66,7 +72,10 @@ export default function Card({
     if (phase !== 'idle') return;
 
     // Audio must start in this click handler, before the opening animation.
-    if (!videoId) playAudio(true);
+    if (data.music.visible !== false) {
+      if (videoId) playYoutube(true);
+      else playAudio(true);
+    }
 
     const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     setPhase('tossing');
@@ -113,9 +122,80 @@ export default function Card({
     } catch { /* Metadata is not available yet; loadedmetadata will retry the seek. */ }
   }
 
+  function playYoutube(fromStart = false) {
+    youtubeWanted.current = true;
+    if (fromStart) youtubeSeekPending.current = true;
+    setYoutubeOpen(true);
+    setMusicError('');
+    const player = youtubePlayerRef.current;
+    if (!player || !youtubeReady.current) return;
+    if (youtubeSeekPending.current) {
+      player.seekTo(5, true);
+      youtubeSeekPending.current = false;
+    }
+    player.unMute();
+    player.setVolume(100);
+    player.playVideo();
+  }
+
+  useEffect(() => {
+    const mount = youtubeMountRef.current;
+    if (!videoId || data.music.visible === false || !mount) return;
+    let cancelled = false;
+    let player: YoutubePlayer | undefined;
+    const blocked = () => {
+      if (cancelled) return;
+      setPlaying(false);
+      if (youtubeWanted.current) setMusicError('Trình duyệt đang chặn nhạc. Chạm ▶ trong khung nhạc để thử lại.');
+    };
+    void loadYoutubeAPI().then((YT) => {
+      if (cancelled) return;
+      const host = document.createElement('div');
+      mount.appendChild(host);
+      player = new YT.Player(host, {
+        videoId, width: '100%', height: 214,
+        playerVars: { autoplay: 0, playsinline: 1, fs: 0, start: 5, loop: 1, playlist: videoId, origin: window.location.origin },
+        events: {
+          onReady: () => {
+            if (cancelled) return;
+            youtubeReady.current = true;
+            if (youtubeWanted.current) playYoutube();
+          },
+          onStateChange: ({ data: state }) => {
+            if (cancelled) return;
+            setPlaying(state === 1);
+            if (state === 1) setMusicError('');
+          },
+          onError: blocked,
+          onAutoplayBlocked: blocked,
+        },
+      });
+      youtubePlayerRef.current = player;
+      const iframe = mount.querySelector('iframe');
+      if (iframe) {
+        iframe.title = 'Nhạc nền YouTube';
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture 'none'; fullscreen 'none'";
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        iframe.allowFullscreen = false;
+      }
+    }).catch(() => {
+      if (!cancelled) setMusicError('Không tải được trình phát. Anh/chị có thể mở bài nhạc trên YouTube.');
+    });
+    return () => {
+      cancelled = true;
+      youtubeReady.current = false;
+      youtubeWanted.current = false;
+      youtubeSeekPending.current = false;
+      youtubePlayerRef.current = null;
+      player?.destroy();
+      mount.replaceChildren();
+    };
+  }, [videoId, data.music.url, data.music.visible]);
+
   function toggleMusic() {
     if (videoId) {
-      setYoutubeOpen((open) => !open);
+      if (youtubeOpen) closeYoutube();
+      else playYoutube();
       return;
     }
     if (audioRef.current?.paused) playAudio();
@@ -123,6 +203,9 @@ export default function Card({
   }
 
   function closeYoutube() {
+    youtubeWanted.current = false;
+    youtubePlayerRef.current?.pauseVideo();
+    setPlaying(false);
     setYoutubeOpen(false);
     musicTriggerRef.current?.focus();
   }
@@ -142,6 +225,8 @@ export default function Card({
     const onVis = () => {
       if (document.hidden) {
         audioRef.current?.pause();
+        youtubeWanted.current = false;
+        youtubePlayerRef.current?.pauseVideo();
         setYoutubeOpen(false);
         setPlaying(false);
       }
@@ -178,6 +263,17 @@ export default function Card({
           onWaiting={() => setPlaying(false)}
           onError={() => { setPlaying(false); setMusicError('Không tải được nhạc. Chạm nút nhạc để thử lại.'); }} />
       )}
+      {showMusic && videoId && (
+        <section className="ct-music-player" aria-label="Trình phát nhạc YouTube" data-no-autoscroll-toggle=""
+          inert={!youtubeOpen} aria-hidden={!youtubeOpen}
+          style={{ visibility: youtubeOpen || phase === 'idle' ? undefined : 'hidden', zIndex: youtubeOpen ? 80 : 50 }}
+          onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); closeYoutube(); } }}>
+          <header><strong>Nhạc nền</strong><button ref={musicCloseRef} type="button" onClick={closeYoutube} aria-label="Đóng và dừng nhạc">×</button></header>
+          <p>Nhạc phát từ giây 00:05 khi mở thiệp. Nếu chưa nghe thấy, chạm ▶ để thử lại.</p>
+          <div ref={youtubeMountRef} className="ct-youtube" />
+          <a href={`https://www.youtube.com/watch?v=${videoId}&t=5s`} target="_blank" rel="noopener noreferrer">Không phát được? Mở trên YouTube ↗</a>
+        </section>
+      )}
       {phase !== 'done' && <Opening data={data} guest={guest} phase={phase} onToss={toss} />}
       <div
         ref={detailRef}
@@ -198,18 +294,7 @@ export default function Card({
           <>
             <MusicButton playing={playing} onToggle={toggleMusic} buttonRef={musicTriggerRef}
               youtube={Boolean(videoId)} expanded={youtubeOpen} error={musicError} />
-            {videoId && youtubeOpen && (
-              <section className="ct-music-player" aria-label="Trình phát nhạc YouTube" data-no-autoscroll-toggle=""
-                onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); closeYoutube(); } }}>
-                <header><strong>Nhạc nền</strong><button ref={musicCloseRef} type="button" onClick={closeYoutube} aria-label="Đóng và dừng nhạc">×</button></header>
-                <p>Chạm ▶ trong video để phát nhạc. Đóng khung này sẽ dừng nhạc.</p>
-                <iframe title="Nhạc nền YouTube" className="ct-youtube"
-                  src={`https://www.youtube.com/embed/${videoId}?autoplay=0&playsinline=1&fs=0&start=5&loop=1&playlist=${videoId}`}
-                  allow="encrypted-media; picture-in-picture 'none'; fullscreen 'none'"
-                  referrerPolicy="strict-origin-when-cross-origin" />
-                <a href={`https://www.youtube.com/watch?v=${videoId}&t=5s`} target="_blank" rel="noopener noreferrer">Không phát được? Mở trên YouTube ↗</a>
-              </section>
-            )}
+
           </>
         )}
       </div>

@@ -173,7 +173,7 @@ test('custom colors persist, publish, reset and reject invalid CSS', async () =>
   for (const key of Object.keys(colors)) assert.equal(reset.graduate[key], undefined);
 });
 
-test('opening has no intermediate portrait or automatic YouTube player', async () => {
+test('opening prepares YouTube Music for click-to-play from 00:05', async () => {
   const c = await create();
   const d = await draftOf(c);
   d.music = { visible: true, url: 'https://music.youtube.com/watch?v=J9abt3xpdDU&si=9qKDxROan8b2T-wf' };
@@ -184,7 +184,7 @@ test('opening has no intermediate portrait or automatic YouTube player', async (
   assert.ok(opening, 'envelope opening must be rendered');
   assert.ok(opening.includes('Mở thiệp tốt nghiệp'));
   assert.ok(!opening.includes('<img'), 'portrait belongs only in the inner content');
-  assert.ok(!html.includes('youtube.com/embed/'), 'opening must not load or play a hidden video');
+  assert.ok(html.includes('Nhạc phát từ giây 00:05 khi mở thiệp.'), 'opening prepares a player with a direct play fallback');
   assert.ok(html.includes('Mở nhạc YouTube'), 'guest can explicitly open the player');
   assert.ok(!html.includes('<audio'), 'YouTube Music must not be sent to an audio element');
   d.music.visible = false;
