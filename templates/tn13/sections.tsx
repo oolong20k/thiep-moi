@@ -21,9 +21,9 @@ export function Hero({ data, guest }: { data: Tn13Data; guest?: string }) {
   const c = data.ceremony;
   const displayName = g.nickname || g.fullName || '';
   const seed = hashSeed(displayName || 'traothiep');
-  const frameCaps = buildFrozenCaps(seed, 3, { sMin: 14, sMax: 22, salt: 1 }).map((cap, i) => ({
+  const frameCaps = buildFrozenCaps(seed, 2, { sMin: 14, sMax: 22, salt: 1 }).map((cap, i) => ({
     ...cap,
-    style: { ...cap.style, '--x': `${[45, 80, 90][i]}%`, '--y': `${[12, 16, 8][i]}%` } as React.CSSProperties,
+    style: { ...cap.style, '--x': `${[80, 90][i]}%`, '--y': `${[16, 8][i]}%` } as React.CSSProperties,
   }));
   const initials = initialsOf(displayName);
   const hasMeta = Boolean(g.school || g.classInfo || g.year);
