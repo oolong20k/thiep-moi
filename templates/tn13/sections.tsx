@@ -4,6 +4,7 @@ import type { AlbumLayout, Tn13Data } from './schema';
 import { dateParts, initialsOf, monthGrid, targetMs } from './date';
 import { buildBoardCaps, buildFrozenCaps, hashSeed } from './parts/Cap';
 import { SectionTag } from './parts/SectionTag';
+import { CoverPhoto } from './parts/CoverPhoto';
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -20,16 +21,10 @@ export function Hero({ data, guest }: { data: Tn13Data; guest?: string }) {
   const c = data.ceremony;
   const displayName = g.nickname || g.fullName || '';
   const seed = hashSeed(displayName || 'traothiep');
-  const frameCaps = buildFrozenCaps(seed, 5, { xMin: 2, xMax: 98, yMin: -6, yMax: 24, sMin: 14, sMax: 22, salt: 1 }).map((cap, idx) => {
-    const rawX = parseFloat(String((cap.style as Record<string, string>)['--x'] ?? '50'));
-    const rawY = parseFloat(String((cap.style as Record<string, string>)['--y'] ?? '0'));
-    // Tránh đặt mũ đè vào vùng mặt nhân vật ở chính giữa khung ảnh (x: 24%..76%, y > 2%)
-    const safeY = idx >= 2 && rawX > 24 && rawX < 76 && rawY > 2 ? `${-(2 + (rawY % 5)).toFixed(1)}%` : (cap.style as Record<string, string>)['--y'];
-    return {
-      ...cap,
-      style: { ...cap.style, '--y': safeY } as React.CSSProperties,
-    };
-  });
+  const frameCaps = buildFrozenCaps(seed, 2, { sMin: 14, sMax: 22, salt: 1 }).map((cap, i) => ({
+    ...cap,
+    style: { ...cap.style, '--x': `${[80, 90][i]}%`, '--y': `${[16, 8][i]}%` } as React.CSSProperties,
+  }));
   const initials = initialsOf(displayName);
   const hasMeta = Boolean(g.school || g.classInfo || g.year);
   const guestNote = g.guestNote ?? 'Hẹn bạn ở sảnh chính của trường, tụi mình chụp thật nhiều hình kỷ niệm nha!';
@@ -52,10 +47,10 @@ export function Hero({ data, guest }: { data: Tn13Data; guest?: string }) {
             className={`ct-frame reveal-piece ${g.coverPhoto ? 'has-photo' : ''}`.trim()}
             style={{ '--piece-delay': '120ms' } as React.CSSProperties}
           >
-            {frameCaps.map((cap, idx) => (
+            {frameCaps.map((cap) => (
               <span
                 key={cap.id}
-                className={`ct-cap ct-frame-cap ct-cap--c${cap.color} ${idx < 2 ? 'is-back' : 'is-front'}`}
+                className={`ct-cap ct-frame-cap ct-cap--c${cap.color} is-front`}
                 style={cap.style}
                 aria-hidden="true"
               >
@@ -64,8 +59,7 @@ export function Hero({ data, guest }: { data: Tn13Data; guest?: string }) {
             ))}
             <figure className="ct-hero-photo">
               {g.coverPhoto ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={g.coverPhoto} alt={displayName} />
+                <CoverPhoto key={g.coverPhoto} src={g.coverPhoto} alt={displayName} transform={g.coverTransform} />
               ) : (
                 <span className="ct-hero-initials" aria-hidden="true">
                   {initials}
@@ -125,11 +119,10 @@ export function Invite({ data, num }: { data: Tn13Data; num: string }) {
   return (
     <section className="ct-section ct-intro reveal">
       <div className="ct-col">
-        <SectionTag num={num} label="Lời mời" />
+        <SectionTag num={num} label="Người mời" />
         <div className="ct-card ct-introcard reveal-piece">
           {data.graduate.fullName && (
             <p className="ct-intro-from">
-              <span className="ct-intro-from-label">Người mời</span>
               <strong className="ct-intro-host">{data.graduate.fullName}</strong>
             </p>
           )}

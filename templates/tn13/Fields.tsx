@@ -1,7 +1,9 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AlbumLayout, HeroLayout, Tn13Data } from './schema';
 import { lastTwo } from './date';
+import { shades, DEFAULT_COLORS } from '@/lib/color';
+import { PhotoEditor } from './parts/PhotoEditor';
 import type { Skin } from './skin';
 import f from './fields.module.css';
 
@@ -203,6 +205,10 @@ export function Tn13Fields({
   };
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [photoEdit, setPhotoEdit] = useState<{ src: string; file?: File } | null>(null);
+  useEffect(() => {
+    return () => { if (photoEdit?.file) URL.revokeObjectURL(photoEdit.src); };
+  }, [photoEdit]);
   const coverInput = useRef<HTMLInputElement>(null);
   const albumInput = useRef<HTMLInputElement>(null);
 
@@ -218,8 +224,9 @@ export function Tn13Fields({
   }
 
   const g = data.graduate;
+  const palette = shades(g.mainColor, g.accentColor, g);
   return (
-    <div className={f.fields}>
+    <div className={f.fields} style={palette as React.CSSProperties}>
       <Group title="1. Thông tin tân cử nhân" open>
         <Text
           label="Họ tên tân cử nhân"
@@ -243,7 +250,7 @@ export function Tn13Fields({
             <span>Màu chủ đạo</span>
             <input
               type="color"
-              value={g.mainColor ?? '#b8cbea'}
+              value={g.mainColor ?? DEFAULT_COLORS.mainColor}
               onChange={(e) => set((d) => (d.graduate.mainColor = e.target.value))}
               style={{ height: 40, padding: 2, cursor: 'pointer' }}
             />
@@ -252,7 +259,7 @@ export function Tn13Fields({
             <span>Màu nhấn</span>
             <input
               type="color"
-              value={g.accentColor ?? '#f3dfb5'}
+              value={g.accentColor ?? DEFAULT_COLORS.accentColor}
               onChange={(e) => set((d) => (d.graduate.accentColor = e.target.value))}
               style={{ height: 40, padding: 2, cursor: 'pointer' }}
             />
@@ -263,14 +270,36 @@ export function Tn13Fields({
             style={{ height: 40 }}
             onClick={() =>
               set((d) => {
-                d.graduate.mainColor = '#b8cbea';
-                d.graduate.accentColor = '#f3dfb5';
+                Object.assign(d.graduate, DEFAULT_COLORS);
               })
             }
           >
             Mặc định
           </button>
         </div>
+
+        <p className={f.hint}>Màu chủ đạo phối nút, dấu niêm phong và chi tiết. Màu nhấn phối nền giấy, phong bì và họa tiết. Các sắc đậm/nhạt được tự phối để dễ đọc.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {([
+            ['textColor', 'Màu chữ', '--ct-ink'],
+            ['pageColor', 'Nền trang (bên ngoài)', '--ct-page-bg'],
+            ['cardColor', 'Nền thiệp (bên trong)', '--ct-card-bg'],
+            ['envelopeColor', 'Màu phong bì', '--ct-envelope'],
+          ] as const).map(([key, label, variable]) => (
+            <div key={key}>
+              <label className={f.field}>
+                <span>{label}</span>
+                <input type="color" value={g[key] ?? palette[variable]}
+                  onChange={(e) => set((d) => { d.graduate[key] = e.target.value; })}
+                  style={{ height: 40, padding: 2, cursor: 'pointer' }} />
+              </label>
+              <button type="button" className={f.mini} disabled={!g[key]}
+                aria-label={`Tự phối ${label.toLowerCase()}`}
+                onClick={() => set((d) => { delete d.graduate[key]; })}>Tự phối</button>
+            </div>
+          ))}
+        </div>
+        <p className={f.hint}>Màu chữ dùng chung cho phong bì và nội dung. Chọn “Tự phối” để phối lại theo màu chủ đạo/nhấn. Màu ảnh và minh họa giữ nguyên.</p>
 
         <input
           ref={coverInput}
@@ -280,12 +309,20 @@ export function Tn13Fields({
           onChange={(e) => {
             const file = e.target.files?.[0];
             e.target.value = '';
-            if (file) run([file], (r) => set((d) => (d.graduate.coverPhoto = r.url)));
+            if (file) setPhotoEdit({ src: URL.createObjectURL(file), file });
           }}
         />
         <button type="button" className={f.mini} disabled={busy} onClick={() => coverInput.current?.click()}>
           {busy ? 'Đang tải…' : g.coverPhoto ? 'Đổi ảnh đại diện' : 'Tải ảnh đại diện'}
         </button>
+        {g.coverPhoto && <button type="button" className={f.mini} onClick={() => setPhotoEdit({ src: g.coverPhoto })}>Căn chỉnh ảnh</button>}
+        {photoEdit && <PhotoEditor src={photoEdit.src} value={photoEdit.file ? undefined : g.coverTransform}
+          onCancel={() => setPhotoEdit(null)}
+          onSave={async (transform) => {
+            const image = photoEdit.file ? await upload(photoEdit.file) : { url: photoEdit.src };
+            set((d) => { d.graduate.coverPhoto = image.url; d.graduate.coverTransform = transform; });
+            setPhotoEdit(null);
+          }} /> }
       </Group>
 
       <Group
@@ -421,7 +458,7 @@ export function Tn13Fields({
         onVisibleChange={(v) => set((d) => (d.music.visible = v))}
       >
         <Text label="Link nhạc nền (YouTube hoặc file .mp3)" value={data.music.url} max={500} onChange={(v) => set((d) => (d.music.url = v))} />
-        <p className={f.hint}>Dán link YouTube hoặc link file nhạc https. Để trống nếu không dùng nhạc. Nhạc phát sau khi khách bấm &ldquo;Mở thiệp&rdquo;.</p>
+        <p className={f.hint}>Dùng link file MP3/M4A https để phát nhạc khi khách bấm &ldquo;Mở thiệp&rdquo;. YouTube/YouTube Music cũng được gọi phát từ giây 00:05 ngay khi bấm mở thiệp; nếu trình duyệt chặn phát, khách có thể thử lại trong khung nhạc. Để trống nếu không dùng nhạc.</p>
       </Group>
     </div>
   );
